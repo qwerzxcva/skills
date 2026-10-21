@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>缠论多维技术分析报告 — {{SYMBOL}}</title>
+<script src="echarts.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Microsoft YaHei',sans-serif;background:#f0f2f5;color:#333;line-height:1.6;}
+.container{max-width:1400px;margin:0 auto;padding:20px;}
+.header{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:30px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;}
+.header h1{font-size:24px;margin-bottom:8px;}
+.header .meta{font-size:14px;opacity:0.8;}
+.header .signal-panel{display:flex;align-items:center;gap:20px;}
+.signal-badge{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:50px;font-size:20px;font-weight:700;color:#fff;}
+.signal-label{font-size:14px;opacity:0.9;}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:20px;}
+.card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.card h3{font-size:13px;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;}
+.card .value{font-size:26px;font-weight:700;}
+.card .sub{font-size:12px;color:#999;margin-top:4px;}
+
+.chart-panel{background:#fff;border-radius:10px;padding:20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.chart-panel h2{font-size:17px;margin-bottom:8px;color:#1a1a2e;border-left:4px solid #e74c3c;padding-left:12px;}
+.chart-box{width:100%;height:520px;}
+
+.analysis-text{background:#f8f9fa;border-radius:8px;padding:14px 18px;margin-top:12px;font-size:14px;line-height:1.8;color:#444;border-left:4px solid #1890ff;}
+.analysis-text strong{color:#333;}
+.analysis-text .highlight{background:#fff3cd;padding:1px 4px;border-radius:2px;font-weight:600;}
+.analysis-text .red{color:#e74c3c;font-weight:600;}
+.analysis-text .green{color:#27ae60;font-weight:600;}
+
+.components-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:20px;}
+.component-card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.component-card h3{font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.component-card .comp-signal{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13px;}
+.comp-bar{height:8px;background:#eee;border-radius:4px;overflow:hidden;margin-bottom:10px;}
+.comp-bar-fill{height:100%;border-radius:4px;transition:width 0.5s;}
+
+.analysis-section{background:#fff;border-radius:10px;padding:20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.analysis-section h2{font-size:17px;margin-bottom:12px;border-left:4px solid #e74c3c;padding-left:12px;}
+.analysis-section .content{font-size:14px;line-height:1.8;color:#555;}
+
+
+.conflict-alert{background:#fffbf0;border:1px solid #f0ad4e;border-radius:8px;padding:12px 16px;margin-top:12px;font-size:13px;color:#856404;}
+
+.compre-analysis{background:linear-gradient(135deg,#f8f9ff,#fff5f5);border:2px solid {{SIGNAL_COLOR}};border-radius:10px;padding:24px;}
+.compre-analysis h2{font-size:18px;margin-bottom:16px;border-left:4px solid #e74c3c;padding-left:12px;}
+.compre-table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px;}
+.compre-table th{text-align:left;padding:8px 12px;background:#f8f9fa;border-bottom:2px solid #ddd;width:25%;}
+.compre-table td{padding:8px 12px;border-bottom:1px solid #eee;}
+.compre-table .bull{color:#e74c3c;}
+.compre-table .bear{color:#27ae60;}
+
+.compre-points{margin-top:16px;}
+.compre-points li{margin-bottom:8px;line-height:1.8;padding-left:8px;}
+
+.footer{text-align:center;padding:20px;color:#999;font-size:12px;}
+
+/* ===== 结论版：结论速览卡 + 技术细节折叠 ===== */
+.conclusion-overview{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 4px 16px rgba(0,0,0,0.12);}
+.co-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.co-verdict{font-size:24px;font-weight:800;color:#fff;padding:10px 22px;border-radius:10px;flex-shrink:0;}
+.co-title{font-size:13px;opacity:0.7;letter-spacing:1px;}
+.co-reason{font-size:16px;font-weight:600;margin-top:4px;line-height:1.5;}
+.co-section{margin-top:16px;}
+.co-label{font-size:12px;opacity:0.65;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.co-reasons{margin:0;padding-left:18px;font-size:14px;line-height:1.8;}
+.co-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.co-box{background:rgba(255,255,255,0.08);border-radius:8px;padding:12px;}
+.co-text{font-size:14px;line-height:1.7;margin-top:4px;}
+.co-risk{margin-top:12px;font-size:13px;line-height:1.7;background:rgba(240,173,78,0.15);padding:8px 12px;border-radius:6px;}
+.co-glossary{margin-top:12px;font-size:13px;}
+.co-glossary summary{cursor:pointer;opacity:0.85;}
+.co-glossary-list{margin:8px 0 0;padding-left:18px;line-height:1.9;}
+.co-glossary-list b{color:#ffd479;}
+.co-note{margin-top:12px;font-size:11px;opacity:0.55;text-align:center;}
+
+/* ===== 量化操作建议（结论版头部第二区块） ===== */
+.quant-advice{background:#fff;border:1px solid #e3e8ef;border-left:4px solid #16213e;border-radius:10px;padding:18px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+.qa-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px;}
+.qa-title{font-size:16px;font-weight:700;color:#16213e;}
+.qa-action{margin-left:auto;font-size:15px;font-weight:700;color:#fff;padding:6px 16px;border-radius:20px;}
+.qa-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px;}
+.qa-box{background:#f7f9fc;border-radius:8px;padding:12px;}
+.qa-label{font-size:12px;color:#888;margin-bottom:4px;}
+.qa-text{font-size:16px;font-weight:600;color:#1a1a2e;}
+.qa-section{margin-top:12px;}
+.qa-tp{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+.qa-tp-item{font-size:13px;padding:4px 10px;border-radius:6px;background:#f0f2f5;color:#333;}
+.qa-tp-item.buy{background:#fdecea;color:#c0392b;}
+.qa-tp-item.sell{background:#eafaf0;color:#27ae60;}
+.qa-note{margin-top:12px;font-size:11px;color:#aaa;text-align:center;}
+
+/* 技术细节折叠（结论版默认收起，可一键展开） */
+.tech-toggle{display:block;width:100%;padding:12px;margin-bottom:20px;border:none;border-radius:10px;background:#16213e;color:#fff;font-size:15px;font-weight:600;cursor:pointer;}
+.tech-detail{display:none;}
+.tech-detail.expanded{display:block;}
+
+@media print{
+  .tech-detail{display:block;}
+  .tech-toggle{display:none;}
+}
+
+/* ===== 单指标深度解析卡 ===== */
+.ind-deep-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;}
+.ind-deep-card{background:#fff;border:1px solid #e3e8ef;border-radius:10px;padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
+.ind-deep-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.ind-deep-name{font-size:16px;font-weight:700;color:#16213e;}
+.ind-deep-badge{color:#fff;font-size:13px;font-weight:600;padding:3px 10px;border-radius:12px;letter-spacing:1px;}
+.ind-deep-cur{font-size:13px;color:#555;background:#f6f8fb;border-radius:6px;padding:6px 10px;margin-bottom:8px;font-family:Consolas,Menlo,monospace;}
+.ind-deep-concl{font-size:14px;line-height:1.7;color:#222;margin-bottom:6px;}
+.ind-deep-guide{font-size:13px;line-height:1.6;color:#777;}
+.ind-deep-empty{color:#999;font-size:14px;padding:12px;}
+/* ===== 多指标共振矩阵 ===== */
+.reso-matrix{background:#fff;}
+.rm-table{width:100%;border-collapse:collapse;font-size:14px;}
+.rm-table th{background:#16213e;color:#fff;padding:10px 12px;text-align:left;font-weight:600;}
+.rm-table td{padding:10px 12px;border-bottom:1px solid #eef1f5;}
+.rm-table tr:nth-child(even) td{background:#fafbfd;}
+.rm-name{font-weight:600;color:#16213e;}
+.rm-kind{display:inline-block;margin-left:8px;font-size:12px;font-weight:400;color:#999;}
+.rm-sig{font-weight:600;}
+.rm-star{color:#f39c12;letter-spacing:1px;font-size:13px;}
+.rm-val{font-family:Consolas,Menlo,monospace;font-weight:600;}
+.rm-summary{margin-top:14px;padding:14px 16px;background:#f6f8fb;border-radius:10px;border-left:4px solid #16213e;}
+.rm-count{font-size:15px;font-weight:600;margin-bottom:6px;}
+.rm-total{font-size:13px;font-weight:400;color:#999;margin-left:6px;}
+.rm-verdict{font-size:15px;line-height:1.7;margin-bottom:6px;}
+.rm-note{font-size:12px;color:#999;line-height:1.6;}
+/* ===== 多级别联动（日线↔周线） ===== */
+.dual-level{background:#fff;}
+.dl-weekdir{font-size:15px;margin-bottom:12px;padding:10px 14px;background:#f6f2fb;border-left:4px solid #8e44ad;border-radius:8px;}
+.dl-table{width:100%;border-collapse:collapse;font-size:13px;}
+.dl-table th{background:#16213e;color:#fff;padding:9px 12px;text-align:left;font-weight:600;}
+.dl-table td{padding:9px 12px;border-bottom:1px solid #eef1f5;vertical-align:top;}
+.dl-table tr:nth-child(even) td{background:#fafbfd;}
+.dl-name{font-weight:700;color:#16213e;white-space:nowrap;width:90px;}
+.dl-daily{font-family:Consolas,Menlo,monospace;}
+.dl-week{font-family:Consolas,Menlo,monospace;}
+.dl-note{margin-top:14px;padding:12px 14px;background:#f6f8fb;border-radius:10px;font-size:12px;line-height:1.6;color:#777;}
+.dual-empty{color:#999;font-size:14px;padding:12px;}
+@media print{
+  body{background:#fff;}
+  .card,.chart-panel,.analysis-section{box-shadow:none;border:1px solid #ddd;page-break-inside:avoid;}
+  .ind-deep-card,.rm-summary{box-shadow:none;border:1px solid #ddd;page-break-inside:avoid;}
+}
+
+/* ===== 融合：技能概览卡（白底专业风） ===== */
+#skill-overview.overview{margin-bottom:20px;border:2px solid #e74c3c;background:linear-gradient(135deg,#fffaf7,#fff);}
+.ov-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.ov-icon{font-size:34px;}
+.ov-title h2{font-size:19px;margin:0;color:#1a1a2e;}
+.ov-code{font-size:13px;color:#888;background:#f0f0f0;padding:1px 6px;border-radius:4px;}
+.ov-en{font-size:12px;color:#999;}
+.ov-badges{margin-left:auto;display:flex;gap:8px;}
+.badge{padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;color:#fff;}
+.badge.r-legend{background:linear-gradient(135deg,#f6c945,#e67e22);}
+.badge.r-epic{background:linear-gradient(135deg,#b06bd8,#7b3fa0);}
+.badge.r-rare{background:linear-gradient(135deg,#5aa9ff,#2d6fd6);}
+.badge.r-common{background:#9aa7c7;}
+.badge.lv{background:#34495e;}
+.badge.sig{color:#fff;}
+.ov-meta{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;}
+.ov-meta .m{flex:1;min-width:90px;background:#fafafa;border:1px solid #eee;border-radius:8px;padding:8px;text-align:center;}
+.ov-meta .k{font-size:11px;color:#999;}
+.ov-meta .v{font-size:16px;font-weight:700;color:#1a1a2e;margin-top:2px;}
+.ov-grid{display:flex;gap:14px;flex-wrap:wrap;}
+.ov-grid .ov-box{flex:1;min-width:280px;}
+.ov-box{background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:14px;margin-bottom:12px;}
+.sec-t{font-size:14px;font-weight:700;color:#1a1a2e;border-left:4px solid #e74c3c;padding-left:8px;margin-bottom:8px;}
+.cbox{width:100%;height:380px;}
+.attr-list .attr-row{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:13px;}
+.attr-name{width:70px;color:#555;}
+.attr-track{position:relative;flex:1;height:10px;background:#f0f0f0;border-radius:5px;overflow:hidden;}
+.attr-track .axis{position:absolute;left:50%;top:0;width:1px;height:100%;background:#ccc;}
+.attr-track .s-bar{position:absolute;top:0;height:100%;display:block;}
+.s-bar.s-red{background:#e74c3c;} .s-bar.s-green{background:#27ae60;} .s-bar.s-purple{background:#8e44ad;}
+.attr-val{width:60px;text-align:right;font-weight:700;}
+.contrib{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;}
+.contrib th,.contrib td{border:1px solid #eee;padding:4px 6px;text-align:center;}
+.contrib .pos{color:#e74c3c;} .contrib .neg{color:#27ae60;}
+.calc{margin-top:6px;font-size:13px;color:#555;}
+.effect{font-size:13px;line-height:1.7;color:#444;}
+.effect-tp{margin-top:6px;font-size:12px;color:#888;}
+.ov-two{display:flex;gap:14px;flex-wrap:wrap;}
+.ov-two .ov-box{flex:1;min-width:280px;}
+.mini{font-size:13px;color:#555;line-height:1.7;}
+.key{font-weight:600;color:#333;}
+.risk{color:#c0392b;font-size:12px;margin-top:4px;}
+.posbar{height:14px;background:#f0f0f0;border-radius:7px;overflow:hidden;margin-bottom:6px;}
+.posbar i{display:block;height:100%;background:linear-gradient(90deg,#e74c3c,#d4a017);}
+.diag .ditem{margin:5px 0;font-size:13px;}
+.diag .dt{font-weight:700;color:#1a1a2e;}
+.diag .dd{color:#555;margin-left:8px;}
+.note{font-size:12px;color:#888;margin-top:6px;line-height:1.6;}
+.keytable{width:100%;border-collapse:collapse;font-size:13px;}
+.keytable th,.keytable td{border:1px solid #eee;padding:4px 6px;text-align:center;}
+.keytable .mono{font-family:monospace;}
+.keytable .sub{color:#999;font-size:12px;}
+
+</style>
+</head>
+<body class="mode-plain">
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>{{SYMBOL}} {{NAME}} — 缠论多维技术分析</h1>
+      <div class="meta">{{START_DATE}} ~ {{END_DATE}} | {{PERIOD}} | 生成: {{GEN_TIME}}</div>
+    </div>
+    <div class="signal-panel">
+      <div class="signal-badge" style="background:{{SIGNAL_COLOR}}">
+        <span>{{SIGNAL_LABEL}}</span>
+        <span class="signal-label">强度 {{FUSED_SIGNAL}} | 置信 {{CONFIDENCE}}%</span>
+      </div>
+    </div>
+  </div>
+
+  {{CONCLUSION_OVERVIEW_HTML}}
+  {{QUANT_ADVICE_HTML}}
+  <button id="techToggle" class="tech-toggle">展开技术细节 ▼</button>
+  <div class="tech-detail" id="techDetail">
+
+  <div class="cards">
+    <div class="card"><h3>综合评分</h3><div class="value" style="color:{{SIGNAL_COLOR}}">{{FUSED_SIGNAL}}</div><div class="sub">{{SIGNAL_LABEL}}</div></div>
+    <div class="card"><h3>缠论结构</h3><div class="value" style="color:{{CHAN_COLOR}}">{{CHAN_TREND}}</div><div class="sub">{{CHAN_SUMMARY}}</div></div>
+    <div class="card"><h3>近30日形态</h3><div class="value">{{RECENT_PATTERN_COUNT}}个</div><div class="sub">看多{{RECENT_BULLISH}} / 看空{{RECENT_BEARISH}}</div></div>
+    <div class="card"><h3>资金态度</h3><div class="value" style="color:{{FUND_COLOR}}">{{FUND_TREND}}</div><div class="sub">强度 {{FUND_INTENSITY}}</div></div>
+    <div class="card"><h3>量价关系</h3><div class="value" style="color:{{VOL_COLOR}}">{{VOL_RELATION}}</div><div class="sub">量比 {{VOL_RATIO}}</div></div>
+  </div>
+
+
+  <!-- ========== 技能概览卡（融合：游戏化元素聚合为顶部卡片） ========== -->
+  <div id="skill-overview" class="card overview">
+    <div class="ov-head">
+      <div class="ov-icon">{{SKILL_ICON}}</div>
+      <div class="ov-title">
+        <h2>{{SKILL_NAME}} <span class="ov-code">${{SYMBOL}}</span></h2>
+        <div class="ov-en">{{SKILL_EN}}</div>
+      </div>
+      <div class="ov-badges">
+        <span class="badge {{RARITY_CLS}}">{{RARITY}}</span>
+        <span class="badge lv">Lv.{{SKILL_LEVEL}}</span>
+        <span class="badge sig" style="background:{{SIG_COLOR}}">{{SIG_LABEL}}</span>
+      </div>
+    </div>
+    <div class="ov-meta">
+      <div class="m"><div class="k">当前价</div><div class="v">{{LAST_PRICE}}</div></div>
+      <div class="m"><div class="k">当日涨跌</div><div class="v">{{CHANGE_PCT}}</div></div>
+      <div class="m"><div class="k">缠论趋势</div><div class="v">{{TREND_CN}}</div></div>
+      <div class="m"><div class="k">综合信号</div><div class="v" style="color:{{SIG_COLOR}}">{{SIG_VAL}}</div></div>
+      <div class="m"><div class="k">置信度</div><div class="v">{{CONF_PCT}}</div></div>
+    </div>
+    <div class="ov-grid">
+      <div class="ov-box">
+        <div class="sec-t">属性雷达（四维信号）</div>
+        <div id="radar" class="cbox"></div>
+      </div>
+      <div class="ov-box">
+        <div class="sec-t">属性数值</div>
+        <div class="attr-list">{{ATTR_ROWS}}</div>
+        <div class="sec-t" style="margin-top:10px">多维信号贡献</div>
+        <table class="contrib"><tr><th>维度</th><th>信号</th><th>权重</th><th>贡献</th></tr>{{CONTRIB_ROWS}}</table>
+        <div class="calc">综合信号 = {{CALC_FORMULA}} = <b style="color:{{SIG_COLOR}}">{{SIG_VAL}}</b></div>
+      </div>
+    </div>
+    <div class="ov-box">
+      <div class="sec-t">技能效果</div>
+      <div class="effect">{{EFFECT_DESC}}</div>
+      <div class="effect-tp">{{EFFECT_TP}}</div>
+    </div>
+    <div class="ov-two">
+      <div class="ov-box">
+        <div class="sec-t">冷却时间 · 复核周期</div>
+        <div class="mini"><div class="key">{{COOLDOWN}}</div></div>
+      </div>
+      <div class="ov-box">
+        <div class="sec-t">消耗资源 · 仓位/风控</div>
+        <div class="posbar"><i style="width:{{POS_PCT}}%"></i></div>
+        <div class="mini">
+          <div class="key">建议仓位 {{POS_PCT}}% ｜ 信心 {{CONF_SCORE}}/10</div>
+          <div class="key">{{OPERATION}}</div>
+          <div class="risk">{{RISK_TXT}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="ov-box">
+      <div class="sec-t">多维诊断</div>
+      <div class="diag">
+        <div class="ditem"><div class="dt">① 缠论结构</div><div class="dd">{{DIAG_CHAN}}</div></div>
+        <div class="ditem"><div class="dt">② 量价配合</div><div class="dd">{{DIAG_VOL}}</div></div>
+        <div class="ditem"><div class="dt">③ 资金流向</div><div class="dd">{{DIAG_FUND}}</div></div>
+        <div class="ditem"><div class="dt">④ 风险提示</div><div class="dd">{{DIAG_RISK}}</div></div>
+      </div>
+      <div class="note">策略参考：{{DIAG_STRATEGY}}</div>
+    </div>
+    <div class="ov-box">
+      <div class="sec-t">关键价位</div>
+      <table class="keytable"><tr><th>名称</th><th>价格</th><th>距离</th></tr>{{KEY_ROWS}}</table>
+      <div class="note">周期视角：{{CYCLE_VIEW}}（{{FINAL_TREND}}）｜ 资金：{{FUND_TREND}}（强度 {{FUND_INT}}，5日 {{FUND5}}，20日 {{FUND20}}）｜ 量价 {{VOL_REL}}（量比 {{VOL_RATIO}}）</div>
+    </div>
+  </div>
+
+  <!-- ========== 图1: K线 + 缠论 + 成交量 + 关键标注（合并） ========== -->
+  <div class="chart-panel">
+    <h2>缠论K线图 — 笔/中枢/买卖点 + 成交量</h2>
+    <div class="chart-box" id="chart-kline"></div>
+    <div class="analysis-text" id="kline-analysis"></div>
+    <div class="analysis-text" id="volume-analysis" style="margin-top:8px;"></div>
+  </div>
+
+  <!-- ========== 技术指标：MACD / KDJ / RSI / OBV ========== -->
+  <div class="chart-panel">
+    <h2>技术指标 — MACD / KDJ / RSI / OBV 共振分析</h2>
+    <div class="chart-box" style="height:280px" id="chart-macd"></div>
+    <div class="analysis-text" id="macd-analysis" style="margin-top:8px;"></div>
+    <div class="chart-box" style="height:220px;margin-top:14px" id="chart-kdj"></div>
+    <div class="analysis-text" id="kdj-analysis" style="margin-top:8px;"></div>
+    <div class="chart-box" style="height:200px;margin-top:14px" id="chart-rsi"></div>
+    <div class="analysis-text" id="rsi-analysis" style="margin-top:8px;"></div>
+    <div class="chart-box" style="height:200px;margin-top:14px" id="chart-obv"></div>
+    <div class="analysis-text" id="obv-analysis" style="margin-top:8px;"></div>
+  </div>
+
+  <!-- ========== 单指标深度解析（MACD/KDJ/RSI/OBV/BOLL/均线，结论先行） ========== -->
+  <div class="chart-panel">
+    <h2>单指标深度解析 — 逐项结论 + 操作指引</h2>
+    {{INDICATOR_DEEP_HTML}}
+  </div>
+
+  <!-- ========== 多指标共振 + 信心打分 ========== -->
+  <div class="chart-panel">
+    <h2>多指标共振 + 信心打分</h2>
+    <div id="resonance-detail"></div>
+    <div id="confidence-detail" style="margin-top:14px;"></div>
+    <div id="divergence-detail" style="margin-top:14px;"></div>
+  </div>
+
+  <!-- ========== 多指标信号共振矩阵（缠论为锚，指标为辅） ========== -->
+  <div class="chart-panel">
+    <h2>多指标信号共振矩阵</h2>
+    {{RESONANCE_MATRIX_HTML}}
+  </div>
+
+  <!-- ========== 多级别联动（日线↔周线，P1） ========== -->
+  <div class="chart-panel">
+    <h2>多级别联动 — 日线找点位 / 周线定方向</h2>
+    {{DUAL_LEVEL_HTML}}
+  </div>
+
+  <!-- ========== 信号贡献 + 仪表盘 ========== -->
+  <div class="chart-panel">
+    <h2>四维信号贡献 + 趋势研判</h2>
+    <div class="components-grid" id="components-detail"></div>
+    
+    <!-- 新增：信号数值解读 -->
+    <div class="analysis-text" style="margin-top:14px;" id="signal-interpretation">
+      <strong>信号数值解读：</strong>
+      <div class="signal-table" style="margin-top:8px;font-size:13px;line-height:1.8;" id="signal-table"></div>
+      <div class="gauge-explain" style="margin-top:10px;font-size:13px;line-height:1.8;color:#666;" id="gauge-explain"></div>
+    </div>
+    
+    <div class="chart-box" style="height:300px" id="chart-gauge"></div>
+  </div>
+
+  <!-- ========== 冲突提示 ========== -->
+  <div id="conflict-section"></div>
+
+  <!-- ========== 最终趋势结论 ========== -->
+  <div class="analysis-section" style="border:2px solid #e74c3c;background:linear-gradient(135deg,#fff5f5,#fff);">
+    <h2 style="color:#e74c3c;">最终趋势结论 — 缠论多维量化交易分析师</h2>
+    <div id="final-conclusion"></div>
+  </div>
+
+  <!-- ========== 综合分析 ========== -->
+  <div class="analysis-section compre-analysis">
+    <h2>多维综合分析</h2>
+    <table class="compre-table">
+      <tr><th>缠论诊断</th><td id="diag-chan"></td></tr>
+      <tr><th>量价评估</th><td id="diag-vol"></td></tr>
+      <tr><th>资金判断</th><td id="diag-fund"></td></tr>
+      <tr><th>风险提示</th><td id="diag-risk"></td></tr>
+      <tr><th>策略参考</th><td id="diag-strategy"></td></tr>
+    </table>
+    <div class="content"><strong>{{RECOMMENDATION}}</strong></div>
+    <div class="content" style="margin-top:8px;color:#888;">{{SUMMARY}}</div>
+  </div>
+
+  <!-- ========== 缠论方法论四模块（源自三本原著） ========== -->
+  {{METHODOLOGY_HTML}}
+  </div>
+
+  <div class="footer">缠论多维量化交易分析师 | 杜绝主观预测 · 只客观拆解走势结构 · 不给保本保收益承诺 | 数据: 通达信/pytdx</div>
+</div>
+
+<script>
+// ======== 数据注入 ========
+var reportData = {{REPORT_DATA_JSON}};
+var chanData = {{CHAN_DATA_JSON}};
+var candleData = {{CANDLE_DATA_JSON}};
+var fundData = {{FUND_DATA_JSON}};
+var volumeData = {{VOLUME_DATA_JSON}};
+var levelsData = {{LEVELS_DATA_JSON}};
+var recentPatterns = {{RECENT_PATTERNS_JSON}};
+var klineAnalysis = {{KLINE_ANALYSIS_JSON}};
+
+function upColor() { return '#e74c3c'; }
+function downColor() { return '#27ae60'; }
+
+var dates = reportData.dates || [];
+var ohlc = reportData.ohlc || [];
+var volumes = reportData.volumes || [];
+var N = dates.length;
+
+// ========= 计算关键价格水平 =========
+function calcLevels() {
+  var levels = levelsData || {};
+  return {
+    supports: levels.supports || [],
+    resistances: levels.resistances || [],
+    ma20: levels.ma20 || [],
+    ma60: levels.ma60 || [],
+    recentHigh: levels.recent_high || null,
+    recentLow: levels.recent_low || null
+  };
+}
+var levels = calcLevels();
+
+// ========= 近30日指数范围 =========
+var lookback = Math.min(60, N);
+var visibleStart = N - lookback;
+
+// ======== 图1: K线 + 缠论标注 + 关键水平线 + price label ========
+(function() {
+  var dom = document.getElementById('chart-kline');
+  var chart = echarts.init(dom);
+
+  var option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'cross' },
+      formatter: function(params) {
+        var candle = null, vol = null, date = '';
+        for (var i = 0; i < params.length; i++) {
+          var s = params[i]; if (!s) continue;
+          if (s.seriesType === 'candlestick' && s.data) {
+            candle = s.data; date = s.axisValue || '';
+          }
+          if (s.seriesName === '量' && s.data) {
+            vol = (typeof s.data === 'object' && s.data.value !== undefined) ? s.data.value : s.data;
+          }
+        }
+        if (!candle) return '';
+        return '<div style="font-size:13px"><b>' + date + '</b><br/>'
+          + '开: ' + candle[1] + ' 收: ' + candle[2] + '<br/>'
+          + '低: ' + candle[3] + ' 高: ' + candle[4] + '<br/>'
+          + '量: ' + (vol !== null ? vol.toLocaleString() : '—') + '</div>';
+      }
+    },
+    axisPointer: { link: [{ xAxisIndex: 'all' }], label: { backgroundColor: '#777' } },
+    grid: [
+      { left: '8%', right: '3%', top: '5%', height: '52%' },
+      { left: '8%', right: '3%', top: '65%', height: '18%' }
+    ],
+    dataZoom: [
+      { type: 'slider', xAxisIndex: [0,1], start: Math.max(0, (N-60)/N*100), end: 100, height: 20, bottom: 0 }
+    ],
+    xAxis: [
+      { type: 'category', data: dates, gridIndex: 0, axisLabel: { show: false }, axisLine: { lineStyle: { color: '#ccc' } } },
+      { type: 'category', data: dates, gridIndex: 1, axisLabel: { rotate: 45, fontSize: 10 }, axisLine: { lineStyle: { color: '#ccc' } } }
+    ],
+    yAxis: [
+      { type: 'value', gridIndex: 0, scale: true, splitLine: { lineStyle: { color: '#f0f0f0' } }, axisLabel: { fontSize: 11 } },
+      { type: 'value', gridIndex: 1, axisLabel: { fontSize: 10, formatter: function(v) { return (v/10000).toFixed(0)+'万'; } } }
+    ],
+    series: []
+  };
+
+  // -- K线 --
+  option.series.push({
+    name: 'K线', type: 'candlestick', data: ohlc, xAxisIndex: 0, yAxisIndex: 0,
+    itemStyle: { color: upColor(), color0: downColor(), borderColor: upColor(), borderColor0: downColor() },
+    markLine: {
+      silent: true, symbol: 'none',
+      lineStyle: { type: 'dashed', width: 1 },
+      data: [
+        { yAxis: levels.recentHigh, lineStyle: { color: 'rgba(231,76,60,0.5)' }, label: { formatter: '阻力 '+(levels.recentHigh||'').toFixed(3), position: 'end', fontSize: 11, color: '#e74c3c' } },
+        { yAxis: levels.recentLow, lineStyle: { color: 'rgba(39,174,96,0.5)' }, label: { formatter: '支撑 '+(levels.recentLow||'').toFixed(3), position: 'end', fontSize: 11, color: '#27ae60' } }
+      ].filter(function(l) { return l.yAxis != null; })
+    }
+  });
+
+  // -- 均线 --
+  var colors = ['#ff9800','#1890ff','#722ed1','#eb2f96','#13c2c2','#faad14'];
+  ['ma5','ma10','ma20','ma60'].forEach(function(k, i) {
+    var ma = reportData[k] || [];
+    option.series.push({
+      name: k.toUpperCase(), type: 'line', data: ma, xAxisIndex: 0, yAxisIndex: 0,
+      symbol: 'none', lineStyle: { color: colors[i], width: (i<2?0.8:1.2), type: i<2?'dotted':'solid' },
+      smooth: true
+    });
+  });
+
+  // -- 成交量 --
+  option.series.push({
+    name: '量', type: 'bar', xAxisIndex: 1, yAxisIndex: 1,
+    data: volumes.map(function(v, i) {
+      var up = ohlc[i] && ohlc[i][1] >= ohlc[i][0];
+      return { value: v, itemStyle: { color: up ? 'rgba(231,76,60,0.5)' : 'rgba(39,174,96,0.5)' } };
+    })
+  });
+
+  // -- P2: BOLL 布林带（上/中/下轨） --
+  if (reportData.boll_upper && reportData.boll_upper.length) {
+    var bollColors = { up: '#2c7be5', mid: '#94a3b8', low: '#e8590c' };
+    [['BOLL上', reportData.boll_upper, bollColors.up],
+     ['BOLL中', reportData.boll_mid, bollColors.mid],
+     ['BOLL下', reportData.boll_lower, bollColors.low]].forEach(function(b) {
+      option.series.push({
+        name: b[0], type: 'line', data: b[1], xAxisIndex: 0, yAxisIndex: 0,
+        symbol: 'none', smooth: true, lineStyle: { color: b[2], width: 0.9, opacity: 0.7 },
+        z: 3, tooltip: { show: false }
+      });
+    });
+  }
+
+  // -- P2: MACD 金叉/死叉标注（主图叠加） --
+  if (reportData.macd_cross && reportData.macd_cross.length) {
+    var crossData = reportData.macd_cross.map(function(c) {
+      if (c.idx == null || c.price == null) return null;
+      var isGold = c.type === 'golden';
+      return {
+        value: [dates[c.idx], c.price],
+        symbol: isGold ? 'triangle' : 'triangle',
+        symbolRotate: isGold ? 0 : 180,
+        symbolSize: 12,
+        itemStyle: { color: isGold ? '#e74c3c' : '#27ae60', borderColor: '#fff', borderWidth: 1.5 },
+        label: { show: true, position: isGold ? 'top' : 'bottom', formatter: isGold ? '金叉' : '死叉',
+                 fontSize: 11, fontWeight: 'bold', color: isGold ? '#e74c3c' : '#27ae60' },
+        tooltip: { formatter: (isGold ? 'MACD金叉 @' : 'MACD死叉 @') + c.price.toFixed(3) }
+      };
+    }).filter(function(x) { return x; });
+    if (crossData.length) {
+      option.series.push({
+        name: 'MACD叉', type: 'scatter', xAxisIndex: 0, yAxisIndex: 0,
+        data: crossData, z: 12, tooltip: { show: true }
+      });
+    }
+  }
+
+  // -- 缠论笔线条 --
+  var strokes = chanData.strokes || [];
+  var strokeSeries = [];
+  strokes.forEach(function(s) {
+    strokeSeries.push([dates[s.start_idx], s.start_price]);
+    strokeSeries.push([dates[s.end_idx], s.end_price]);
+    strokeSeries.push(null); // break
+  });
+  if (strokeSeries.length > 0) {
+    option.series.push({
+      name: '笔', type: 'line', xAxisIndex: 0, yAxisIndex: 0,
+      symbol: 'none', lineStyle: { color: 'rgba(255,152,0,0.6)', width: 1.5 },
+      data: strokeSeries, connectNulls: false
+    });
+  }
+
+  // -- 中枢矩形 (自定义) --
+  var pivots = chanData.pivots || [];
+  pivots.forEach(function(p, pi) {
+    option.series.push({
+      name: '中枢', type: 'custom', xAxisIndex: 0, yAxisIndex: 0,
+      renderItem: function(params, api) {
+        var x1 = api.coord([dates[p.start_idx], p.zd])[0];
+        var x2 = api.coord([dates[p.end_idx], p.zd])[0];
+        var y1 = api.coord([dates[p.start_idx], p.zd])[1];
+        var y2 = api.coord([dates[p.start_idx], p.zg])[1];
+        return {
+          type: 'rect',
+          shape: { x: x1, y: y2, width: x2-x1, height: y1-y2 },
+          style: { fill: 'rgba(24,144,255,0.06)', stroke: 'rgba(24,144,255,0.35)', lineWidth: 1, lineDash: [4,4] }
+        };
+      },
+      data: [0]
+    });
+  });
+
+  // -- 买卖点 --
+  var tps = chanData.trading_points || [];
+  if (tps.length > 0) {
+    option.series.push({
+      name: '买卖点', type: 'scatter', xAxisIndex: 0, yAxisIndex: 0, symbolSize: 18,
+      data: tps.map(function(tp) {
+        var isBuy = (tp.type||'').indexOf('buy') >= 0;
+        return {
+          value: [dates[tp.index], tp.price],
+          symbol: 'arrow', symbolRotate: isBuy ? 0 : 180,
+          itemStyle: { color: isBuy ? '#e74c3c' : '#27ae60', borderColor: '#fff', borderWidth: 2 },
+          label: { show: true, position: isBuy ? 'bottom' : 'top', formatter: tp.label||tp.type, fontSize: 12, fontWeight: 'bold', color: isBuy ? '#e74c3c' : '#27ae60' }
+        };
+      })
+    });
+  }
+
+  // -- 近30日形态标注（叠加到主图） --
+  var pats = recentPatterns || [];
+  if (pats.length > 0) {
+    var byIdx = {};
+    pats.forEach(function(p) {
+      if (typeof p.index !== 'number') return;
+      (byIdx[p.index] = byIdx[p.index] || []).push(p);
+    });
+    var patData = [];
+    Object.keys(byIdx).forEach(function(k) {
+      var list = byIdx[k];
+      list.forEach(function(p, j) {
+        var isBull = p.type === 'bullish';
+        var o = ohlc[p.index] || [];
+        var lo = o[3], hi = o[4];
+        (p.ohlc || []).forEach(function(c) { if (c[3] < lo) lo = c[3]; if (c[4] > hi) hi = c[4]; });
+        if (lo == null || hi == null) return;
+        var yPos = isBull ? lo : hi;
+        var offset = (j + 1) * (isBull ? -1 : 1) * 0.012 * ((hi - lo) || 1);
+        patData.push({
+          value: [dates[p.index], yPos + offset],
+          symbol: 'circle', symbolSize: 1,
+          label: {
+            show: true,
+            position: isBull ? 'bottom' : 'top',
+            formatter: p.name,
+            fontSize: 10, fontWeight: 'bold',
+            color: isBull ? '#e74c3c' : '#27ae60',
+            backgroundColor: 'rgba(255,255,255,0.8)',
+            padding: [1, 3], borderRadius: 3
+          },
+          itemStyle: { color: isBull ? '#e74c3c' : '#27ae60' },
+          tooltip: { formatter: '<b>' + p.date_str + '</b><br/>' + p.name + '（' + (isBull ? '看多' : '看空') + '）<br/>强度: ' + (p.strength != null ? p.strength : '—') }
+        });
+      });
+    });
+    option.series.push({
+      name: '形态标注', type: 'scatter', xAxisIndex: 0, yAxisIndex: 0,
+      symbolSize: 1, data: patData, z: 10,
+      tooltip: { show: true }
+    });
+  }
+
+  chart.setOption(option);
+  window.addEventListener('resize', function() { chart.resize(); });
+
+  // -- K线解读文字 --
+  var kdiv = document.getElementById('kline-analysis');
+  if (kdiv && klineAnalysis) {
+    var a = klineAnalysis;
+    var html = '<strong>当前K线结构解读：</strong>';
+    if (a.trend) html += a.trend + '。';
+    if (a.position) html += a.position + '。';
+    if (a.recent_action) html += a.recent_action + '。';
+    html += ' <span class="highlight">最近支撑位: ' + (a.support_text||'待观察') + '</span>';
+    if (a.resistance_text) html += ' <span class="highlight">阻力位: ' + a.resistance_text + '</span>';
+    html += '。' + (a.analysis||'');
+    kdiv.innerHTML = html;
+  }
+})();
+
+// ======== 量价分析文字（已合并到K线主图下方） ========
+(function() {
+  var vdiv = document.getElementById('volume-analysis');
+  if (vdiv && volumeData) {
+    var html = '<strong>量价配合分析：</strong>';
+    html += '近5日量价关系: ' + (volumeData.vol_relation_5d||'无显著特征') + '。';
+    html += '成交量趋势: ' + (volumeData.vol_trend||'平稳') + '。';
+    if (volumeData.vol_events && volumeData.vol_events.length > 0) {
+      html += '关键信号: ';
+      volumeData.vol_events.forEach(function(e) {
+        html += '<span class="highlight">' + e.label + '</span> ';
+      });
+    }
+    html += volumeData.vol_analysis || '';
+    vdiv.innerHTML = html;
+  }
+})();
+
+// ======== 技术指标：MACD ========
+(function() {
+  var dom = document.getElementById('chart-macd');
+  if (!dom) return;
+  var chart = echarts.init(dom);
+  var ti = reportData.ti || {};
+  var macd = ti.macd || {};
+  var dif = macd.dif || [];
+  var dea = macd.dea || [];
+  var bar = macd.macd_bar || [];
+  var divs = macd.divergences || [];
+  
+  // 背离标注点
+  var topMarks = divs.filter(function(d){return d.type==='top';}).map(function(d){
+    return { name: '顶背离', coord: [dates[d.end_idx], bar[d.end_idx]], symbol: 'pin', symbolSize: 32, itemStyle: {color:'#e74c3c'}, label: {fontSize: 10, formatter: '顶背离'} };
+  });
+  var bottomMarks = divs.filter(function(d){return d.type==='bottom';}).map(function(d){
+    return { name: '底背离', coord: [dates[d.end_idx], bar[d.end_idx]], symbol: 'pin', symbolSize: 32, itemStyle: {color:'#27ae60'}, label: {fontSize: 10, formatter: '底背离'} };
+  });
+
+  chart.setOption({
+    tooltip: { trigger: 'axis' },
+    dataZoom: [{ type: 'slider', start: Math.max(0, (N-60)/N*100), end: 100, height: 18, bottom: 0 }],
+    grid: { left: '8%', right: '3%', top: '8%', bottom: '15%' },
+    xAxis: { type: 'category', data: dates, axisLabel: { rotate: 45, fontSize: 10 } },
+    yAxis: { type: 'value', scale: true, axisLabel: { fontSize: 10 } },
+    series: [
+      { name: 'DIF', type: 'line', data: dif, smooth: true, lineStyle: { color: '#1890ff', width: 1.5 }, symbol: 'none',
+        markPoint: { data: topMarks.concat(bottomMarks) } },
+      { name: 'DEA', type: 'line', data: dea, smooth: true, lineStyle: { color: '#ff9800', width: 1 }, symbol: 'none' },
+      { name: 'MACD柱', type: 'bar', data: bar.map(function(v){return {value:v, itemStyle:{color: v>=0?'rgba(231,76,60,0.6)':'rgba(39,174,96,0.6)'}};}) }
+    ],
+    legend: { data: ['DIF','DEA','MACD柱'], top: 2, textStyle: {fontSize: 11} }
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+
+  // MACD分析文字
+  var div = document.getElementById('macd-analysis');
+  if (div) {
+    var dirMap = {bullish:'多头', bearish:'空头', neutral:'中性'};
+    var crossMap = {golden:'金叉', death:'死叉', none:'无'};
+    var html = '<strong>MACD解读：</strong>DIF=' + (macd.last_dif||0).toFixed(4) + 
+               ' DEA=' + (macd.last_dea||0).toFixed(4) + 
+               ' 方向：<span class="' + (macd.direction==='bullish'?'red':macd.direction==='bearish'?'green':'') + '">' + 
+               (dirMap[macd.direction]||'中性') + '</span>' +
+               ' 交叉：<span class="highlight">' + (crossMap[macd.cross]||'无') + '</span>' +
+               ' 柱状图=' + (macd.last_bar||0).toFixed(4);
+    if (divs.length > 0) {
+      html += ' <span class="red">检测到' + divs.length + '个背离</span>：';
+      divs.slice(0,3).forEach(function(d){ html += d.description + '; '; });
+    }
+    div.innerHTML = html;
+  }
+})();
+
+// ======== 技术指标：KDJ ========
+(function() {
+  var dom = document.getElementById('chart-kdj');
+  if (!dom) return;
+  var chart = echarts.init(dom);
+  var ti = reportData.ti || {};
+  var kdj = ti.kdj || {};
+  
+  chart.setOption({
+    tooltip: { trigger: 'axis' },
+    dataZoom: [{ type: 'slider', start: Math.max(0, (N-60)/N*100), end: 100, height: 18, bottom: 0 }],
+    grid: { left: '8%', right: '3%', top: '8%', bottom: '15%' },
+    xAxis: { type: 'category', data: dates, axisLabel: { rotate: 45, fontSize: 10 } },
+    yAxis: { type: 'value', min: 0, max: 100, axisLabel: { fontSize: 10 } },
+    series: [
+      { name: 'K', type: 'line', data: kdj.k||[], smooth: true, lineStyle: {color:'#1890ff', width:1.5}, symbol:'none' },
+      { name: 'D', type: 'line', data: kdj.d||[], smooth: true, lineStyle: {color:'#ff9800', width:1.5}, symbol:'none' },
+      { name: 'J', type: 'line', data: kdj.j||[], smooth: true, lineStyle: {color:'#9c27b0', width:1}, symbol:'none',
+        markArea: (reportData.kdj_over || reportData.kdj_under) ? { silent: true, itemStyle: { color: 'rgba(231,76,60,0.05)' },
+          data: [
+            (reportData.kdj_over ? [{yAxis: 80}, {yAxis: 100}] : null),
+            (reportData.kdj_under ? [{yAxis: 0}, {yAxis: 20}] : null)
+          ].filter(function(x){ return x; }) } : undefined }
+    ],
+    legend: { data: ['K','D','J'], top: 2, textStyle: {fontSize: 11} },
+    markLine: { silent: true, symbol: 'none', lineStyle: {type:'dashed', width:1},
+      data: [{yAxis: 80, lineStyle:{color:'rgba(231,76,60,0.4)'}, label:{formatter:'超买80', fontSize:10, color:'#e74c3c'}},
+             {yAxis: 20, lineStyle:{color:'rgba(39,174,96,0.4)'}, label:{formatter:'超卖20', fontSize:10, color:'#27ae60'}}] }
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+
+  var div = document.getElementById('kdj-analysis');
+  if (div) {
+    var state = kdj.overbought ? '超买(警惕回调)' : kdj.oversold ? '超卖(关注反弹)' : '正常区间';
+    var crossMap = {golden:'金叉', death:'死叉', none:'无'};
+    div.innerHTML = '<strong>KDJ解读：</strong>K=' + (kdj.last_k||50).toFixed(2) + 
+                    ' D=' + (kdj.last_d||50).toFixed(2) + 
+                    ' J=' + (kdj.last_j||50).toFixed(2) + 
+                    ' 状态：<span class="highlight">' + state + '</span>' +
+                    ' 交叉：' + (crossMap[kdj.cross]||'无');
+  }
+})();
+
+// ======== 技术指标：RSI ========
+(function() {
+  var dom = document.getElementById('chart-rsi');
+  if (!dom) return;
+  var chart = echarts.init(dom);
+  var ti = reportData.ti || {};
+  var rsi = ti.rsi || {};
+  var divs = rsi.divergences || [];
+
+  chart.setOption({
+    tooltip: { trigger: 'axis' },
+    dataZoom: [{ type: 'slider', start: Math.max(0, (N-60)/N*100), end: 100, height: 18, bottom: 0 }],
+    grid: { left: '8%', right: '3%', top: '8%', bottom: '15%' },
+    xAxis: { type: 'category', data: dates, axisLabel: { rotate: 45, fontSize: 10 } },
+    yAxis: { type: 'value', min: 0, max: 100, axisLabel: { fontSize: 10 } },
+    series: [
+      { name: 'RSI(14)', type: 'line', data: rsi.rsi_values||[], smooth: true, lineStyle: {color:'#e74c3c', width:1.5}, symbol:'none',
+        markArea: (reportData.rsi_over || reportData.rsi_under) ? { silent: true, itemStyle: { color: 'rgba(231,76,60,0.05)' },
+          data: [
+            (reportData.rsi_over ? [{yAxis: 70}, {yAxis: 100}] : null),
+            (reportData.rsi_under ? [{yAxis: 0}, {yAxis: 30}] : null)
+          ].filter(function(x){ return x; }) } : undefined,
+        markPoint: { data: divs.filter(function(d){return d.type==='top';}).map(function(d){
+          return {coord:[dates[d.end_idx], rsi.rsi_values[d.end_idx]], symbol:'pin', symbolSize:28, itemStyle:{color:'#e74c3c'}, label:{fontSize:9, formatter:'顶背'}};
+        }).concat(divs.filter(function(d){return d.type==='bottom';}).map(function(d){
+          return {coord:[dates[d.end_idx], rsi.rsi_values[d.end_idx]], symbol:'pin', symbolSize:28, itemStyle:{color:'#27ae60'}, label:{fontSize:9, formatter:'底背'}};
+        })) } }
+    ],
+    legend: { data: ['RSI(14)'], top: 2, textStyle: {fontSize: 11} },
+    markLine: { silent: true, symbol: 'none', lineStyle: {type:'dashed', width:1},
+      data: [{yAxis: 70, lineStyle:{color:'rgba(231,76,60,0.4)'}, label:{formatter:'超买70', fontSize:10, color:'#e74c3c'}},
+             {yAxis: 30, lineStyle:{color:'rgba(39,174,96,0.4)'}, label:{formatter:'超卖30', fontSize:10, color:'#27ae60'}}] }
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+
+  var div = document.getElementById('rsi-analysis');
+  if (div) {
+    var state = rsi.overbought ? '超买(警惕回调)' : rsi.oversold ? '超卖(关注反弹)' : '中性区间';
+    var html = '<strong>RSI解读：</strong>RSI(14)=' + (rsi.last_rsi||50).toFixed(2) + 
+               ' 状态：<span class="highlight">' + state + '</span>';
+    if (divs.length > 0) {
+      html += ' <span class="red">检测到' + divs.length + '个RSI背离</span>：';
+      divs.slice(0,3).forEach(function(d){ html += d.description + '; '; });
+    }
+    div.innerHTML = html;
+  }
+})();
+
+// ======== 技术指标：OBV ========
+(function() {
+  var dom = document.getElementById('chart-obv');
+  if (!dom) return;
+  var chart = echarts.init(dom);
+  var ti = reportData.ti || {};
+  var obv = ti.obv || {};
+  var obvValues = obv.obv_values || [];
+  var obvMa5 = obv.obv_ma5 || [];
+  var obvMa20 = obv.obv_ma20 || [];
+
+  chart.setOption({
+    tooltip: { trigger: 'axis' },
+    dataZoom: [{ type: 'slider', start: Math.max(0, (N-60)/N*100), end: 100, height: 18, bottom: 0 }],
+    grid: { left: '8%', right: '3%', top: '8%', bottom: '15%' },
+    xAxis: { type: 'category', data: dates, axisLabel: { rotate: 45, fontSize: 10 } },
+    yAxis: { type: 'value', scale: true, axisLabel: { fontSize: 10, formatter: function(v){ return (v/10000).toFixed(0)+'万'; } } },
+    series: [
+      { name: 'OBV', type: 'line', data: obvValues, smooth: true, lineStyle: {color:'#9c27b0', width:1.5}, symbol:'none', areaStyle: {color: 'rgba(156,39,176,0.08)'} },
+      { name: 'OBV_MA5', type: 'line', data: obvMa5, smooth: true, lineStyle: {color:'#ff9800', width:1, type:'dashed'}, symbol:'none' },
+      { name: 'OBV_MA20', type: 'line', data: obvMa20, smooth: true, lineStyle: {color:'#1890ff', width:1}, symbol:'none' }
+    ],
+    legend: { data: ['OBV','OBV_MA5','OBV_MA20'], top: 2, textStyle: {fontSize: 11} }
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+
+  var div = document.getElementById('obv-analysis');
+  if (div) {
+    var alertColor = obv.signal > 0.1 ? 'color:#e74c3c' : obv.signal < -0.1 ? 'color:#27ae60' : 'color:#888';
+    var html = '<strong>OBV解读：</strong>' + (obv.vol_alert||'数据不足') +
+               ' <span style="' + alertColor + '">信号' + (obv.signal>0?'+':'') + (obv.signal||0).toFixed(3) + '</span>';
+    if (obv.obv_change_5d !== undefined) {
+      html += ' | 近5日OBV变化' + (obv.obv_change_5d>0?'+':'') + obv.obv_change_5d.toFixed(1) + '%';
+    }
+    div.innerHTML = html;
+  }
+})();
+
+// ======== 最终趋势结论 ========
+(function() {
+  var fc = reportData.final_conclusion || {};
+  var div = document.getElementById('final-conclusion');
+  if (!div || !fc.trend_direction) return;
+
+  var signalColor = fc.signal_value > 0.1 ? '#e74c3c' : fc.signal_value < -0.1 ? '#27ae60' : '#888';
+  var confScore = fc.confidence_score || 0;
+  var confColor = confScore >= 7 ? '#e74c3c' : confScore >= 5 ? '#ff9800' : confScore >= 3 ? '#1890ff' : '#999';
+
+  var html = '<div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">';
+  html += '<div style="font-size:24px;font-weight:700;color:'+signalColor+'">' + fc.signal_label + ' (' + (fc.signal_value>0?'+':'') + fc.signal_value.toFixed(3) + ')</div>';
+  html += '<div style="font-size:16px;color:#666">信心打分 <span style="color:'+confColor+';font-weight:700;font-size:20px">' + confScore.toFixed(1) + '</span>/10</div>';
+  html += '</div>';
+
+  // 1. 趋势方向
+  html += '<div style="margin-bottom:12px;padding:10px;background:#f8f9fa;border-radius:6px;border-left:3px solid #1890ff;">';
+  html += '<strong style="color:#1890ff;">1. 趋势方向</strong><br/>';
+  html += '<span style="font-size:14px;line-height:1.8;">' + fc.trend_direction + '</span>';
+  html += '</div>';
+
+  // 2. 关键价位
+  html += '<div style="margin-bottom:12px;padding:10px;background:#f8f9fa;border-radius:6px;border-left:3px solid #27ae60;">';
+  html += '<strong style="color:#27ae60;">2. 关键价位</strong><br/>';
+  html += '<span style="font-size:14px;line-height:1.8;">' + (fc.key_levels||[]).join(' | ') + '</span>';
+  html += '</div>';
+
+  // 3. 操作建议
+  html += '<div style="margin-bottom:12px;padding:10px;background:#fff5f5;border-radius:6px;border-left:3px solid #e74c3c;">';
+  html += '<strong style="color:#e74c3c;">3. 操作建议</strong><br/>';
+  html += '<span style="font-size:14px;line-height:1.8;">' + fc.operation + '</span>';
+  html += '</div>';
+
+  // 4. 风险边界
+  html += '<div style="margin-bottom:12px;padding:10px;background:#fff8e1;border-radius:6px;border-left:3px solid #ff9800;">';
+  html += '<strong style="color:#ff9800;">4. 风险边界</strong><br/>';
+  html += '<span style="font-size:14px;line-height:1.8;">' + fc.risk_boundary + '</span>';
+  html += '</div>';
+
+  // 5. 周期视角
+  html += '<div style="margin-bottom:12px;padding:10px;background:#f0f4ff;border-radius:6px;border-left:3px solid #6c5ce7;">';
+  html += '<strong style="color:#6c5ce7;">5. 周期视角</strong><br/>';
+  html += '<span style="font-size:14px;line-height:1.8;">' + fc.cycle_view + '</span>';
+  html += '</div>';
+
+  // 免责声明
+  html += '<div style="margin-top:10px;padding:8px;background:#f5f5f5;border-radius:4px;font-size:12px;color:#999;text-align:center;">';
+  html += '以上为技术结构客观解读，严格区分确定结构与概率推演，不给出保本保收益承诺。';
+  html += '</div>';
+
+  div.innerHTML = html;
+})();
+
+// ======== 多指标共振 + 信心打分 + 背离汇总 ========
+(function() {
+  var ti = reportData.ti || {};
+  var res = ti.resonance || {};
+  var conf = ti.confidence || {};
+  var allDivs = res.divergences || [];
+
+  // 共振详情
+  var rdiv = document.getElementById('resonance-detail');
+  if (rdiv) {
+    var alignColor = res.alignment && res.alignment.indexOf('bull')>=0 ? '#e74c3c' : 
+                     res.alignment && res.alignment.indexOf('bear')>=0 ? '#27ae60' : '#999';
+    var alignMap = {strong_bullish:'强多头共振', bullish:'多头共振', strong_bearish:'强空头共振', bearish:'空头共振', neutral:'方向分歧'};
+    var html = '<div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;">';
+    html += '<div style="font-size:18px;font-weight:700;color:'+alignColor+'">' + (alignMap[res.alignment]||'中性') + '</div>';
+    html += '<div style="font-size:14px;">多头指标: <span class="red">'+(res.bull_count||0)+'</span> / 空头指标: <span class="green">'+(res.bear_count||0)+'</span> / 中性: '+(res.neutral_count||0)+'</div>';
+    html += '<div style="font-size:14px;">共振得分: <strong>' + (res.score||0).toFixed(3) + '</strong></div>';
+    html += '</div>';
+    html += '<div style="margin-top:8px;font-size:13px;color:#666;">' + (res.description||'') + '</div>';
+    
+    // 各指标信号条
+    var signals = res.signals || {};
+    html += '<table style="width:100%;margin-top:12px;border-collapse:collapse;font-size:13px;">';
+    html += '<tr style="background:#f8f9fa"><th style="padding:6px 10px;text-align:left">指标</th><th style="padding:6px 10px">信号值</th><th style="padding:6px 10px">方向</th></tr>';
+    for (var k in signals) {
+      var v = signals[k];
+      var dir = v > 0.1 ? '看多' : v < -0.1 ? '看空' : '中性';
+      var color = v > 0.1 ? 'color:#e74c3c' : v < -0.1 ? 'color:#27ae60' : 'color:#999';
+      var nameMap = {macd:'MACD', kdj:'KDJ', rsi:'RSI', chan:'缠论', obv:'OBV'};
+      html += '<tr><td style="padding:5px 10px">' + (nameMap[k]||k) + '</td><td style="padding:5px 10px;text-align:center;'+color+'">'+(v>0?'+':'')+v.toFixed(3)+'</td><td style="padding:5px 10px;text-align:center;'+color+'">'+dir+'</td></tr>';
+    }
+    html += '</table>';
+    rdiv.innerHTML = html;
+  }
+
+  // 信心打分
+  var cdiv = document.getElementById('confidence-detail');
+  if (cdiv && conf) {
+    var score = conf.score || 0;
+    var level = conf.level || '中';
+    var levelColor = score >= 8 ? '#e74c3c' : score >= 6 ? '#ff9800' : score >= 4 ? '#1890ff' : '#999';
+
+    // 含义映射
+    var levelDesc = '';
+    if (score >= 9) levelDesc = '多指标高度共振，信号方向高度一致，交易决策可靠性极高';
+    else if (score >= 7) levelDesc = '指标基本同向，方向较明确，判断可信度高';
+    else if (score >= 5) levelDesc = '存在少量矛盾，需结合缠论结构/资金/量能综合判断';
+    else if (score >= 3) levelDesc = '多指标分歧显著，信号不可靠，不建议据此做单向决策';
+    else if (score >= 1) levelDesc = '指标严重冲突或背离过多，严禁据此做单方向决策，等待信号明确';
+    else levelDesc = '所有指标矛盾/无有效信号，完全不具备操作价值';
+
+    var html = '<div style="display:flex;align-items:center;gap:16px;">';
+    html += '<div style="font-size:32px;font-weight:700;color:'+levelColor+'">' + score.toFixed(1) + '</div>';
+    html += '<div><div style="font-size:14px;color:#888">信心打分 (满分10分)</div>';
+    html += '<div style="font-size:16px;font-weight:600;color:'+levelColor+'">置信度等级：' + level + '</div>';
+    html += '<div style="font-size:13px;color:#666;margin-top:4px;max-width:480px">' + levelDesc + '</div>';
+    html += '</div></div>';
+    
+    // 评分维度
+    var factors = conf.factors || {};
+    html += '<table style="width:100%;margin-top:10px;border-collapse:collapse;font-size:13px;">';
+    html += '<tr style="background:#f8f9fa"><th style="padding:6px 10px;text-align:left">评分维度</th><th style="padding:6px 10px">分值</th><th style="padding:6px 10px;text-align:left">含义</th></tr>';
+    var factorMean = {'一致性':'MACD/KDJ/RSI/缠论同向指标数量','趋势强度':'共振得分映射，值越大趋势越清晰','背离惩罚':'出现与当前方向相反的背离，警示反转风险','交叉确认':'MACD近期是否发生金叉/死叉，增强信号可靠性'};
+    for (var f in factors) {
+      var fv = factors[f];
+      var fcolor = fv >= 0 ? '#333' : '#e74c3c';
+      html += '<tr><td style="padding:5px 10px">' + f + '</td><td style="padding:5px 10px;text-align:center;color:'+fcolor+'">' + (fv>0?'+':'') + fv.toFixed(1) + '</td><td style="padding:5px 10px;font-size:12px;color:#888">' + (factorMean[f]||'') + '</td></tr>';
+    }
+    html += '</table>';
+    html += '<div style="margin-top:8px;padding:8px;background:#fff8e1;border-left:3px solid #f0ad4e;font-size:13px;">' + (conf.explanation||'') + '</div>';
+    cdiv.innerHTML = html;
+  }
+
+  // 背离汇总（精简，只显示总数量，不再列出详情）
+  var ddiv = document.getElementById('divergence-detail');
+  if (ddiv) {
+    var topDivs = allDivs.filter(function(d){return d.type==='top';});
+    var botDivs = allDivs.filter(function(d){return d.type==='bottom';});
+    var html = '<strong>背离信号：</strong>';
+    if (allDivs.length === 0) {
+      html += '<span style="color:#999">未检测到明显背离</span>';
+    } else {
+      html += '共' + allDivs.length + '个 (顶背离' + topDivs.length + ' / 底背离' + botDivs.length + ')。<span style="color:#888">已标注在MACD/RSI图表上，仅作警示参考，不单独展开列表。</span>';
+    }
+    ddiv.innerHTML = html;
+  }
+})();
+
+// ======== 信号仪表盘 ========
+(function() {
+  var dom = document.getElementById('chart-gauge');
+  var chart = echarts.init(dom);
+  var sig = parseFloat('{{FUSED_SIGNAL_RAW}}') || 0;
+  chart.setOption({
+    series: [{
+      type: 'gauge', startAngle: 210, endAngle: -30, min: -1, max: 1,
+      center: ['50%','55%'], radius: '90%',
+      axisLine: { lineStyle: { width: 20,
+        color: [[0.2,'#27ae60'],[0.35,'#52c41a'],[0.5,'#999'],[0.65,'#faad14'],[0.8,'#ff7875'],[1,'#e74c3c']] }},
+      pointer: { length: '60%', width: 8, itemStyle: { color: '#333' } },
+      axisTick: { distance: -20, length: 8, lineStyle: { width: 1 } },
+      splitLine: { distance: -25, length: 20, lineStyle: { width: 2 } },
+      axisLabel: { distance: 35, fontSize: 11, formatter: function(v) { return (v>0?'+':'')+v.toFixed(1); } },
+      anchor: { show: true, size: 16 },
+      title: { show: true, offsetCenter: [0,'85%'], fontSize: 14 },
+      detail: { valueAnimation: true, fontSize: 32, offsetCenter: [0,'60%'],
+        formatter: function(v) { return (v>0?'+':'')+v.toFixed(2); },
+        color: sig>0?'#e74c3c':'#27ae60' },
+      data: [{ value: sig, name: '综合信号强度' }]
+    }]
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+})();
+
+// ======== 信号数值解读（动态生成）========
+(function() {
+  var interp = reportData.interpretation || {};
+  var items = interp.items || [];
+  var calc = interp.calculation || '';
+  var confidenceExplain = interp.confidence_explain || '';
+  var gaugeTable = interp.gauge_table || [];
+  
+  // 信号表格
+  var tableHtml = '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+  tableHtml += '<tr style="background:#f8f9fa"><th style="text-align:left;padding:6px 10px;border-bottom:1px solid #ddd">维度</th><th style="text-align:left;padding:6px 10px;border-bottom:1px solid #ddd">信号值</th><th style="text-align:left;padding:6px 10px;border-bottom:1px solid #ddd">含义</th><th style="text-align:left;padding:6px 10px;border-bottom:1px solid #ddd">贡献</th></tr>';
+  items.forEach(function(item) {
+    var color = item.signal > 0.05 ? 'color:#e74c3c' : (item.signal < -0.05 ? 'color:#27ae60' : 'color:#999');
+    tableHtml += '<tr><td style="padding:5px 10px;border-bottom:1px solid #eee">'+item.name+'</td>';
+    tableHtml += '<td style="padding:5px 10px;border-bottom:1px solid #eee;font-weight:700;'+color+'">'+(item.signal>0?'+':'')+item.signal.toFixed(3)+'</td>';
+    tableHtml += '<td style="padding:5px 10px;border-bottom:1px solid #eee">'+item.meaning+'</td>';
+    tableHtml += '<td style="padding:5px 10px;border-bottom:1px solid #eee">'+item.contribution+'</td></tr>';
+  });
+  tableHtml += '</table>';
+  if (calc) {
+    tableHtml += '<div style="margin-top:8px;padding:8px;background:#f8f9fa;border-radius:4px;font-family:monospace;font-size:12px;">'+calc+'</div>';
+  }
+  document.getElementById('signal-table').innerHTML = tableHtml;
+  
+  // 仪表盘解读
+  var gaugeHtml = '<strong>综合信号 '+interp.fused_signal+' 的含义：</strong>';
+  if (gaugeTable.length > 0) {
+    gaugeHtml += '<table style="width:100%;margin-top:6px;border-collapse:collapse;font-size:12px;">';
+    gaugeTable.forEach(function(g) {
+      var active = g.is_active ? 'background:#fff3cd;font-weight:700' : '';
+      gaugeHtml += '<tr style="'+active+'"><td style="padding:4px 10px;border-bottom:1px solid #eee">'+g.range+'</td><td style="padding:4px 10px;border-bottom:1px solid #eee">'+g.label+'</td><td style="padding:4px 10px;border-bottom:1px solid #eee">'+g.desc+'</td></tr>';
+    });
+    gaugeHtml += '</table>';
+  }
+  if (confidenceExplain) {
+    gaugeHtml += '<div style="margin-top:8px;padding:8px;background:#fff8e1;border-left:3px solid #f0ad4e;border-radius:0 4px 4px 0;">'+confidenceExplain+'</div>';
+  }
+  document.getElementById('gauge-explain').innerHTML = gaugeHtml;
+})();
+
+// ======== 组件贡献 ========
+(function() {
+  var dom = document.getElementById('components-detail');
+  if (!dom) return;
+  var comps = reportData.components || {};
+  var names = { chan: '缠论', candlestick: 'K线形态', fund_flow: '资金流向', volume: '成交量' };
+  var html = '';
+  for (var k in names) {
+    var c = comps[k] || {};
+    var sig = c.signal || 0;
+    var color = sig > 0.05 ? '#e74c3c' : (sig < -0.05 ? '#27ae60' : '#999');
+    var dir = sig > 0.1 ? '看多' : (sig < -0.1 ? '看空' : '中性');
+    html += '<div class="component-card">';
+    html += '<h3><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+color+'"></span> '+names[k]+' ('+dir+')</h3>';
+    html += '<div class="comp-signal"><span>信号值</span><span style="color:'+color+';font-weight:700">'+(sig>0?'+':'')+sig.toFixed(3)+'</span></div>';
+    html += '<div class="comp-signal"><span>置信度</span><span>'+((c.confidence||0)*100).toFixed(0)+'%</span></div>';
+    html += '<div class="comp-signal"><span>权重</span><span>'+((c.weight||0)*100).toFixed(0)+'%</span></div>';
+    html += '<div class="comp-bar"><div class="comp-bar-fill" style="width:'+Math.abs(sig)*100+'%;background:'+color+'"></div></div>';
+    html += '</div>';
+  }
+  dom.innerHTML = html;
+})();
+
+// ======== 冲突提示 ========
+(function() {
+  var dom = document.getElementById('conflict-section');
+  var conflicts = reportData.conflicts || [];
+  if (conflicts.length === 0) return;
+  var html = '<div class="analysis-section conflict-alert"><h2 style="border-left-color:#f0ad4e">信号冲突警告</h2><ul>';
+  conflicts.forEach(function(c) { html += '<li>'+c.dim_a+'('+c.signal_a+') 与 '+c.dim_b+'('+c.signal_b+') 方向相反 — 严重: '+c.severity+'</li>'; });
+  html += '</ul></div>';
+  dom.innerHTML = html;
+})();
+
+// ======== 综合分析诊断 ========
+(function() {
+  if (!window.diag) {
+    // 填充综合分析表格
+    // 这些数据由Python端计算并注入
+  }
+  var diag = reportData.diagnosis || {};
+  document.getElementById('diag-chan').innerHTML = diag.chan || '暂无';
+  document.getElementById('diag-vol').innerHTML = diag.vol || '暂无';
+  document.getElementById('diag-fund').innerHTML = diag.fund || '暂无';
+  document.getElementById('diag-risk').innerHTML = diag.risk || '暂无';
+  document.getElementById('diag-strategy').innerHTML = diag.strategy || '暂无';
+})();
+
+// ======== 结论版：技术细节折叠开关 + ECharts 重绘 ========
+(function() {
+  var btn = document.getElementById('techToggle');
+  var box = document.getElementById('techDetail');
+  if (!btn || !box) return;
+  var chartIds = ['chart-kline','chart-macd','chart-kdj','chart-rsi','chart-obv','chart-gauge'];
+  btn.addEventListener('click', function() {
+    var expanded = box.classList.toggle('expanded');
+    btn.textContent = expanded ? '收起技术细节 ▲' : '展开技术细节 ▼';
+    if (expanded) {
+      chartIds.forEach(function(id) {
+        var dom = document.getElementById(id);
+        if (!dom) return;
+        try { var inst = echarts.getInstanceByDom(dom); if (inst) inst.resize(); } catch (e) {}
+      });
+      window.scrollTo({ top: box.offsetTop, behavior: 'smooth' });
+    }
+  });
+})();
+</script>
+
+<script>
+// ============ 技能概览卡 · 属性雷达（白底报告风配色） ============
+var radar = echarts.init(document.getElementById('radar'));
+radar.setOption({
+  tooltip:{},
+  radar:{ shape:'polygon', radius:'76%', center:['50%','54%'],
+    indicator:[{name:'缠论',max:100},{name:'K线',max:100},{name:'资金',max:100},{name:'量能',max:100}],
+    axisName:{color:'#666',fontSize:12},
+    splitLine:{lineStyle:{color:'#ddd'}}, splitArea:{areaStyle:{color:['rgba(231,76,60,.03)','rgba(231,76,60,.07)']}},
+    axisLine:{lineStyle:{color:'#ddd'}} },
+  series:[{ type:'radar', data:[{ value:{{RADAR_VALS}},
+    name:'多维信号', symbolSize:5,
+    lineStyle:{color:'#e74c3c',width:2}, itemStyle:{color:'#e74c3c'},
+    areaStyle:{color:'rgba(231,76,60,.25)'} }] }]
+});
+window.addEventListener('resize', function(){ radar.resize(); });
+</script>
+
+</body>
+</html>

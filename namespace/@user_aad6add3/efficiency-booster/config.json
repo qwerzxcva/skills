@@ -1,0 +1,117 @@
+{
+  "version": "1.0.0",
+  "defaultMode": "four",
+  "outputFormat": "docx",
+  "outputTemplate": "professional",
+  "steps": {
+    "clarify": {
+      "name": "界定问题",
+      "nameEn": "Clarify",
+      "key": "确保做正确的事",
+      "color": "#008080",
+      "tools": ["5W1H", "逆向思维"],
+      "output": "问题界定报告"
+    },
+    "deconstruct": {
+      "name": "拆解任务",
+      "nameEn": "Deconstruct",
+      "key": "降低启动门槛",
+      "color": "#20B2AA",
+      "tools": ["WBS", "MECE"],
+      "output": "任务拆解清单"
+    },
+    "optimize": {
+      "name": "优化路径",
+      "nameEn": "Optimize",
+      "key": "寻找最优解",
+      "color": "#48D1CC",
+      "tools": ["二八定律", "止损点"],
+      "output": "路径优化方案"
+    },
+    "review": {
+      "name": "动态复盘",
+      "nameEn": "Review",
+      "key": "建立正向反馈",
+      "color": "#40E0D0",
+      "tools": ["PDCA", "归因分析"],
+      "output": "复盘报告+SOP"
+    }
+  },
+  "frameworks": {
+    "5w1h": {
+      "name": "5W1H提问法",
+      "elements": [
+        {"key": "why", "name": "Why", "desc": "目的：最终价值是什么？"},
+        {"key": "what", "name": "What", "desc": "标准：什么算做完/做好？"},
+        {"key": "who", "name": "Who", "desc": "责任：谁对结果负责？"},
+        {"key": "when", "name": "When", "desc": "节点：截止日期是什么？"},
+        {"key": "where", "name": "Where", "desc": "边界：资源范围在哪里？"},
+        {"key": "how", "name": "How", "desc": "方法：用什么方法做？"}
+      ]
+    },
+    "wbs": {
+      "name": "WBS工作分解结构",
+      "principles": [
+        "分解到可执行动作",
+        "每个动作有明确产出",
+        "估算每个动作耗时"
+      ]
+    },
+    "mece": {
+      "name": "MECE原则",
+      "fullName": "Mutually Exclusive, Collectively Exhaustive",
+      "checks": ["相互独立", "完全穷尽", "无遗漏", "无重复"]
+    },
+    "pareto": {
+      "name": "二八定律",
+      "principle": "20%任务决定80%结果",
+      "strategy": "聚焦核心，剔除次要"
+    },
+    "pdca": {
+      "name": "PDCA循环",
+      "steps": [
+        {"key": "plan", "name": "Plan", "desc": "计划"},
+        {"key": "do", "name": "Do", "desc": "执行"},
+        {"key": "check", "name": "Check", "desc": "检查"},
+        {"key": "act", "name": "Act", "desc": "处理"}
+      ]
+    }
+  },
+  "fakeActions": {
+    "types": [
+      {"name": "过度准备", "example": "整理桌面、下载软件", "solution": "设定准备时间上限"},
+      {"name": "完美主义", "example": "反复修改不重要的细节", "solution": "先完成再完善"},
+      {"name": "逃避行为", "example": "刷手机、回消息、开会", "solution": "番茄工作法"},
+      {"name": "虚假忙碌", "example": "做很多但与目标无关的事", "solution": "对照目标检查"}
+    ]
+  },
+  "attribution": {
+    "types": [
+      {"type": "能力问题", "solution": "学习、培训、求助"},
+      {"type": "态度问题", "solution": "重新评估必要性、激励机制"},
+      {"type": "环境问题", "solution": "改善环境、时间管理"},
+      {"type": "方法问题", "solution": "优化流程、工具升级"},
+      {"type": "资源问题", "solution": "申请资源、调整目标"}
+    ]
+  },
+  "checklist": {
+    "before": [
+      "定目标：这件事的终局是什么？",
+      "拆动作：第一步能做什么？",
+      "排优先级：哪件事价值最大？",
+      "看结果：做完这一步离目标更近了吗？"
+    ],
+    "during": [
+      "是否在执行核心任务？",
+      "是否有假动作？",
+      "是否达到止损点？",
+      "进度是否符合预期？"
+    ],
+    "after": [
+      "目标达成了吗？",
+      "哪里卡壳了？",
+      "哪里浪费了时间？",
+      "经验如何固化？"
+    ]
+  }
+}

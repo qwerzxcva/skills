@@ -1,0 +1,11 @@
+# agent-local-memory-keeper 依赖声明（版本锁）
+# 安装：pip install -r requirements.txt
+# 注：本 skill 默认零配置开箱即用，仅神经语义召回/本地LLM 需下列依赖。
+
+# ── 必需（开箱默认能力：神经语义召回 + 向量运算）──
+fastembed==0.8.0
+numpy==2.5.1
+
+# ── 可选（手动开启项，缺失时相关 op 显式提示而非静默降级）──
+# 本地 LLM 后端（部分嵌入/推理场景）：缺则回退 fastembed
+sentence-transformers>=2.5.0

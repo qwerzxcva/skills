@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{SKILL_NAME}} · 缠论多维技能卡</title>
+<script src="echarts.min.js"></script>
+<style>
+:root{
+  --bg:#0a0e1a; --bg2:#121a30; --surface:#151d33; --surface2:#1b2440;
+  --line:#2a3556; --text:#e8edf7; --sub:#9aa7c7; --muted:#6b779b;
+  --red:#ff5b6e; --green:#2ee6a6; --purple:#9b8cff; --gold:#ffcf5c; --blue:#5aa9ff;
+  --glow:0 0 24px rgba(91,169,255,.25);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  background:radial-gradient(1200px 700px at 80% -10%,#1a2a55 0,transparent 60%),
+  linear-gradient(160deg,#0a0e1a 0%,#0e1426 45%,#0a0e1a 100%);
+  color:var(--text);line-height:1.6;padding:24px 14px 60px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto}
+.card{background:linear-gradient(160deg,var(--surface),var(--bg2));
+  border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:18px;
+  box-shadow:0 10px 40px rgba(0,0,0,.45);position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(600px 200px at 100% 0,rgba(91,169,255,.10),transparent 70%);pointer-events:none}
+
+/* Header */
+.hd{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.icon{width:74px;height:74px;flex:0 0 74px;border-radius:16px;display:grid;place-items:center;
+  font-size:38px;background:linear-gradient(145deg,#1f2a4d,#0f1730);border:1px solid var(--line);
+  box-shadow:var(--glow)}
+.hd-main{flex:1;min-width:200px}
+.hd-main h1{font-size:24px;letter-spacing:.5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.hd-en{color:var(--muted);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.badges{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.badge{padding:4px 11px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid var(--line)}
+.r-legend{background:linear-gradient(90deg,#7a3bff,#ff5b6e);color:#fff;border:none}
+.r-epic{background:linear-gradient(90deg,#3b6bff,#9b8cff);color:#fff;border:none}
+.r-rare{background:linear-gradient(90deg,#1f8f6b,#2ee6a6);color:#06281c;border:none}
+.r-common{background:#222c4a;color:var(--sub)}
+.lvl{background:#241b3d;color:var(--purple);border:1px solid #3a2c63}
+.codechip{background:#10203f;color:var(--blue);border:1px solid #1d3a66}
+
+/* meta bar */
+.meta{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:16px}
+.meta .m{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.meta .m .k{font-size:11px;color:var(--muted)}
+.meta .m .v{font-size:18px;font-weight:800;margin-top:3px;font-variant-numeric:tabular-nums}
+.v.red{color:var(--red)} .v.green{color:var(--green)} .v.gold{color:var(--gold)} .v.blue{color:var(--blue)}
+
+/* section title */
+.sec-t{font-size:15px;font-weight:800;color:var(--blue);letter-spacing:1px;margin:4px 0 14px;
+  display:flex;align-items:center;gap:8px}
+.sec-t::before{content:"";width:4px;height:16px;background:var(--blue);border-radius:2px;box-shadow:var(--glow)}
+
+/* description */
+.desc{color:var(--sub);font-size:14.5px}
+.desc b{color:var(--text)}
+
+/* attr grid */
+.grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
+.attr-row{display:flex;align-items:center;gap:12px;margin:11px 0}
+.attr-name{width:74px;flex:0 0 74px;font-size:13px;color:var(--sub);text-align:right}
+.attr-track{position:relative;flex:1;height:14px;background:#0c1426;border:1px solid var(--line);
+  border-radius:8px;overflow:hidden}
+.attr-track .axis{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:#3a466e}
+.s-bar{position:absolute;top:0;bottom:0;display:block;border-radius:8px;transition:width .8s ease}
+.s-red{background:linear-gradient(90deg,#ff5b6e,#ff8a96)}
+.s-green{background:linear-gradient(90deg,#1fae85,#2ee6a6)}
+.s-purple{background:linear-gradient(90deg,#7a6cff,#b3a8ff);left:0}
+.attr-val{width:74px;flex:0 0 74px;text-align:left;font-weight:800;font-variant-numeric:tabular-nums;font-size:13px}
+.charts{display:flex;flex-direction:column;gap:10px}
+.cbox{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:6px}
+#radar{height:230px} #gauge{height:170px}
+.legend{display:flex;gap:14px;justify-content:center;font-size:12px;color:var(--sub);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:middle}
+
+/* generic cards */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.mini{background:var(--surface2);border:1px solid var(--line);border-radius:14px;padding:16px}
+.mini h3{font-size:14px;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.mini p{color:var(--sub);font-size:13.5px}
+.posbar{height:12px;background:#0c1426;border:1px solid var(--line);border-radius:7px;overflow:hidden;margin:8px 0}
+.posbar i{display:block;height:100%;background:linear-gradient(90deg,#5aa9ff,#9b8cff)}
+.key{display:inline-block;font-size:12px;color:var(--muted);margin-top:6px}
+.risk{color:var(--red);font-size:13.5px;font-weight:600}
+
+/* effect */
+.effect-tp{display:inline-block;background:#241b3d;border:1px solid #3a2c63;color:var(--purple);
+  padding:5px 12px;border-radius:8px;font-weight:700;font-size:13px;margin-bottom:10px}
+.effect-desc{color:var(--sub);font-size:14px}
+.effect-desc b{color:var(--text)}
+
+/* table */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600;font-size:12px}
+td.pos{color:var(--red);font-weight:700} td.neg{color:var(--green);font-weight:700}
+td.mono{font-variant-numeric:tabular-nums;color:var(--blue);font-weight:700}
+td.sub{color:var(--muted)}
+.calc{margin-top:10px;font-size:12.5px;color:var(--muted);background:#0c1426;border:1px dashed var(--line);
+  border-radius:8px;padding:8px;word-break:break-all}
+
+/* diagnosis list */
+.diag{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ditem{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.ditem .dt{font-size:12px;color:var(--blue);font-weight:700;margin-bottom:5px}
+.ditem .dd{font-size:13px;color:var(--sub)}
+.bull{color:var(--red);font-weight:700} .bear{color:var(--green);font-weight:700} .highlight{color:var(--gold);font-weight:700}
+
+/* methodology injected */
+.analysis-section{border:2px solid #2f54eb!important;background:linear-gradient(135deg,#f0f4ff,#fff)!important;
+  border-radius:14px;padding:16px;color:#1a2238}
+.analysis-section h2{color:#2f54eb!important;font-size:15px;margin-bottom:10px}
+.analysis-section .content{color:#1a2238!important;font-size:13.5px;margin:7px 0}
+.analysis-section .content p{color:#1a2238!important;margin:4px 0}
+.analysis-section strong{color:#2f54eb}
+
+.note{font-size:12px;color:var(--muted);margin-top:10px;background:#0c1426;border:1px solid var(--line);
+  border-radius:8px;padding:8px}
+
+/* footer */
+.foot{text-align:center;color:var(--muted);font-size:12px;margin-top:24px;line-height:1.8}
+.foot b{color:var(--sub)}
+
+@media (max-width:760px){
+  .grid2,.two,.diag{grid-template-columns:1fr}
+  .meta{grid-template-columns:repeat(2,1fr)}
+  .bt{grid-template-columns:repeat(2,1fr)}
+  .hd-main h1{font-size:20px}
+  body{padding:14px 8px 40px}
+  .card{padding:16px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ HEADER ============ -->
+  <div class="card">
+    <div class="hd">
+      <div class="icon">{{SKILL_ICON}}</div>
+      <div class="hd-main">
+        <h1>{{SKILL_NAME}} <span class="codechip">${{SYMBOL}}</span></h1>
+        <div class="hd-en">{{SKILL_EN}}</div>
+        <div class="badges">
+          <span class="badge {{RARITY_CLS}}">{{RARITY}}</span>
+          <span class="badge lvl">等级 {{SKILL_LEVEL}}</span>
+          <span class="badge codechip">{{NAME}}</span>
+        </div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="m"><div class="k">当前价</div><div class="v blue">{{LAST_PRICE}}</div></div>
+      <div class="m"><div class="k">当日涨跌</div><div class="v">{{CHANGE_PCT}}</div></div>
+      <div class="m"><div class="k">缠论趋势</div><div class="v gold">{{TREND_CN}}</div></div>
+      <div class="m"><div class="k">综合信号</div><div class="v" style="color:{{SIG_COLOR}}">{{SIG_LABEL}}</div></div>
+      <div class="m"><div class="k">置信度</div><div class="v purple" style="color:var(--purple)">{{CONF_PCT}}</div></div>
+    </div>
+  </div>
+
+  <!-- ============ 技能描述 ============ -->
+  <div class="card">
+    <div class="sec-t">技能描述</div>
+    <p class="desc">本技能基于<b>缠论笔 / 线段 / 中枢</b>结构，融合<b>K线形态、资金流向、量价配合、技术指标（指数平滑异同平均线 / 随机指标 / 相对强弱指标）共振</b>，
+    对 <b>{{NAME}}（{{SYMBOL}}）</b> 进行多维量化判定。当前处于<b>{{TREND_CN}}</b>结构，综合信号
+    <b style="color:var(--gold)">{{SIG_VAL}}</b>（<b>{{SIG_LABEL}}</b>），置信度 <b style="color:var(--purple)">{{CONF_PCT}}</b>。
+    当价格回踩中枢下沿不破时触发「一类买点」蓄能，放量突破中枢上沿并回踩不破时触发「三类买点」追击；
+    若有效跌破中枢下沿，则技能反转为空头压制。数据区间：{{REC_DATE}}。</p>
+  </div>
+
+  <!-- ============ 属性数值 + 图表 ============ -->
+  <div class="card">
+    <div class="sec-t">属性数值</div>
+    <div class="grid2">
+      <div>{{ATTR_ROWS}}</div>
+      <div class="charts">
+        <div class="cbox"><div id="radar"></div></div>
+        <div class="cbox"><div id="gauge"></div></div>
+        <div class="legend">
+          <span><i style="background:var(--red)"></i>看多(涨)</span>
+          <span><i style="background:var(--green)"></i>看空(跌)</span>
+          <span><i style="background:var(--purple)"></i>中性/综合</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 价格走势 K线 ============ -->
+  <div class="card">
+    <div class="sec-t">价格走势</div>
+    <div class="cbox" style="padding:4px"><div id="kline" style="height:440px"></div></div>
+    <div class="legend">
+      <span><i style="background:var(--red)"></i>均线5</span>
+      <span><i style="background:var(--gold)"></i>均线10</span>
+      <span><i style="background:var(--blue)"></i>均线20</span>
+      <span><i style="background:var(--purple)"></i>均线60</span>
+      <span><i style="background:rgba(255,152,0,.7)"></i>缠论笔</span>
+      <span><i style="background:rgba(91,169,255,.4)"></i>中枢</span>
+    </div>
+  </div>
+
+  <!-- ============ 技能效果 ============ -->
+  <div class="card">
+    <div class="sec-t">技能效果</div>
+    <span class="effect-tp">触发买卖点：{{EFFECT_TP}}</span>
+    <p class="effect-desc">{{EFFECT_DESC}}</p>
+  </div>
+
+  <!-- ============ 冷却时间 + 消耗资源 ============ -->
+  <div class="two">
+    <div class="card">
+      <div class="sec-t">冷却时间</div>
+      <div class="mini">
+        <h3>⏳ 复核周期</h3>
+        <p>{{COOLDOWN}}</p>
+        <div class="key">主周期：日线｜ 精确买卖点：30 分钟区间套</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-t">消耗资源</div>
+      <div class="mini">
+        <h3>⚡ 仓位 / 风控</h3>
+        <div class="posbar"><i style="width:{{POS_PCT}}%"></i></div>
+        <p><b style="color:var(--text)">建议仓位 {{POS_PCT}}%</b> · {{OPERATION}}</p>
+        <p class="risk">⚠ 风险边界：{{RISK_TXT}}</p>
+        <div class="key">信心打分 {{CONF_SCORE}}/10 ｜ 资源消耗随信号强度浮动</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 多维信号贡献 ============ -->
+  <div class="card">
+    <div class="sec-t">多维信号贡献</div>
+    <table>
+      <thead><tr><th>维度</th><th>原始信号</th><th>权重</th><th>贡献</th></tr></thead>
+      <tbody>{{CONTRIB_ROWS}}</tbody>
+    </table>
+    <div class="calc">综合信号 = {{CALC_FORMULA}} = <b style="color:var(--gold)">{{SIG_VAL}}</b></div>
+  </div>
+
+  <!-- ============ 综合诊断 ============ -->
+  <div class="card">
+    <div class="sec-t">综合诊断</div>
+    <div class="diag">
+      <div class="ditem"><div class="dt">① 缠论结构</div><div class="dd">{{DIAG_CHAN}}</div></div>
+      <div class="ditem"><div class="dt">② 量价配合</div><div class="dd">{{DIAG_VOL}}</div></div>
+      <div class="ditem"><div class="dt">③ 资金流向</div><div class="dd">{{DIAG_FUND}}</div></div>
+      <div class="ditem"><div class="dt">④ 风险提示</div><div class="dd">{{DIAG_RISK}}</div></div>
+    </div>
+    <div class="note">策略参考：{{DIAG_STRATEGY}}</div>
+  </div>
+
+  <!-- ============ 关键价位 ============ -->
+  <div class="card">
+    <div class="sec-t">关键价位</div>
+    <table>
+      <thead><tr><th>类型</th><th>价格</th><th>距当前</th></tr></thead>
+      <tbody>{{KEY_ROWS}}</tbody>
+    </table>
+  </div>
+
+  <!-- ============ 缠论方法论四模块 ============ -->
+  <div class="card">
+    <div class="sec-t">缠论方法论</div>
+    {{METHODOLOGY_HTML}}
+  </div>
+
+  <!-- ============ 周期视角 / 最终结论 ============ -->
+  <div class="card">
+    <div class="sec-t">周期视角与结论</div>
+    <p class="desc"><b style="color:var(--text)">最终结论：</b>{{FINAL_TREND}}</p>
+    <p class="desc" style="margin-top:8px"><b style="color:var(--text)">周期视角：</b>{{CYCLE_VIEW}}</p>
+    <div class="note">资金视角：{{FUND_TREND}}（强度 {{FUND_INT}}，5日净流入 {{FUND5}}，20日净流入 {{FUND20}}）｜
+      量能：{{VOL_REL}}（量比 {{VOL_RATIO}}）｜ 技术指标信心 {{CONF_SCORE}}/10</div>
+  </div>
+
+  <!-- ============ 文件目录 ============ -->
+  <div class="card">
+    <div class="sec-t">文件目录</div>
+    <p class="desc">本次 <b>{{SYMBOL}}</b> 分析在<b>产物输出目录</b>下的完整产物清单（共 <b>{{FILE_COUNT}}</b> 个文件）：</p>
+    <table>
+      <thead><tr><th>文件名</th><th>类型</th><th>大小</th><th>说明</th></tr></thead>
+      <tbody>{{FILE_ROWS}}</tbody>
+    </table>
+    <div class="note">数据来源：通达信行情数据（日线·前复权，自动实时拉取，无本地缓存文件）
+      ｜ 分析引擎：缠论多维量化引擎（六维融合）
+      ｜ 数据层：行情接口模块（通达信行情接入）</div>
+  </div>
+
+  <div class="foot">
+    数据来源：通达信行情（日线·前复权）｜ 分析框架：缠论多维量化引擎（六维融合）<br>
+    <b>本页面为技术分析可视化，不构成任何投资建议；市场有风险，决策须独立。</b>
+  </div>
+
+</div>
+
+<script>
+// ============ K线图（价格走势，整合核心图表） ============
+var D = {{KLINE_JSON}};
+var kc = echarts.init(document.getElementById('kline'));
+var upC = function(){return '#ff5b6e';}, dnC = function(){return '#2ee6a6';};
+var kOpt = {
+  backgroundColor:'transparent',
+  tooltip:{ trigger:'axis', axisPointer:{type:'cross', crossStyle:{color:'#6b779b'}},
+    backgroundColor:'rgba(16,22,40,.95)', borderColor:'#2a3556', textStyle:{color:'#e8edf7',fontSize:12} },
+  axisPointer:{ link:[{xAxisIndex:'all'}], label:{backgroundColor:'#3a466e'} },
+  grid:[{left:'9%',right:'3%',top:'6%',height:'58%'},{left:'9%',right:'3%',top:'70%',height:'16%'}],
+  dataZoom:[{ type:'slider', xAxisIndex:[0,1], start:Math.max(0,(D.dates.length-70)/D.dates.length*100), end:100,
+    height:18, bottom:6, textStyle:{color:'#9aa7c7'}, borderColor:'#2a3556', fillerColor:'rgba(91,169,255,.15)',
+    handleStyle:{color:'#5aa9ff'}, dataBackground:{lineStyle:{color:'#3a466e'},areaStyle:{color:'rgba(91,169,255,.1)'} } }],
+  xAxis:[{ type:'category', data:D.dates, gridIndex:0, axisLabel:{show:false}, axisLine:{lineStyle:{color:'#2a3556'}} },
+         { type:'category', data:D.dates, gridIndex:1, axisLabel:{rotate:45,fontSize:10,color:'#9aa7c7'}, axisLine:{lineStyle:{color:'#2a3556'}} }],
+  yAxis:[{ type:'value', gridIndex:0, scale:true, splitLine:{lineStyle:{color:'#1b2440'}}, axisLabel:{fontSize:11,color:'#9aa7c7'} },
+         { type:'value', gridIndex:1, axisLabel:{fontSize:10,color:'#9aa7c7',formatter:function(v){return (v/10000).toFixed(0)+'万';}} }],
+  series:[]
+};
+kOpt.series.push({ name:'K线', type:'candlestick', data:D.ohlc, xAxisIndex:0, yAxisIndex:0,
+  itemStyle:{ color:upC(), color0:dnC(), borderColor:upC(), borderColor0:dnC() },
+  markLine:{ silent:true, symbol:'none', lineStyle:{type:'dashed',width:1}, data:[
+    { yAxis:D.recentHigh, lineStyle:{color:'rgba(255,91,110,.6)'}, label:{formatter:'阻力 '+D.recentHigh.toFixed(3),position:'end',fontSize:11,color:'#ff5b6e'} },
+    { yAxis:D.recentLow, lineStyle:{color:'rgba(46,230,166,.6)'}, label:{formatter:'支撑 '+D.recentLow.toFixed(3),position:'end',fontSize:11,color:'#2ee6a6'} }
+  ].filter(function(l){return l.yAxis!=null;}) }
+});
+[['ma5','#ff5b6e',0.8,'dotted'],['ma10','#ffcf5c',0.8,'dotted'],['ma20','#5aa9ff',1.2,'solid'],['ma60','#9b8cff',1.2,'solid']]
+ .forEach(function(c){ kOpt.series.push({ name:'均线'+c[0].slice(2), type:'line', data:D[c[0]], xAxisIndex:0, yAxisIndex:0,
+   symbol:'none', lineStyle:{color:c[1],width:c[2],type:c[3]}, smooth:true }); });
+kOpt.series.push({ name:'量', type:'bar', xAxisIndex:1, yAxisIndex:1,
+  data:D.volumes.map(function(v,i){ var up=D.ohlc[i]&&D.ohlc[i][1]>=D.ohlc[i][0];
+    return { value:v, itemStyle:{color:up?'rgba(255,91,110,.5)':'rgba(46,230,166,.5)'} }; }) });
+var ss=[]; (D.strokes||[]).forEach(function(s){ ss.push([D.dates[s.start_idx],s.start_price]); ss.push([D.dates[s.end_idx],s.end_price]); ss.push(null); });
+if(ss.length) kOpt.series.push({ name:'笔', type:'line', data:ss, xAxisIndex:0, yAxisIndex:0, symbol:'none',
+  lineStyle:{color:'rgba(255,152,0,.7)',width:1.5}, connectNulls:false });
+(D.pivots||[]).forEach(function(p){ kOpt.series.push({ name:'中枢', type:'custom', xAxisIndex:0, yAxisIndex:0,
+  renderItem:function(params,api){ var x1=api.coord([D.dates[p.start_idx],p.zd])[0], x2=api.coord([D.dates[p.end_idx],p.zd])[0];
+    var y1=api.coord([D.dates[p.start_idx],p.zd])[1], y2=api.coord([D.dates[p.start_idx],p.zg])[1];
+    return { type:'rect', shape:{x:x1,y:y2,width:x2-x1,height:y1-y2}, style:{fill:'rgba(91,169,255,.07)',stroke:'rgba(91,169,255,.4)',lineWidth:1,lineDash:[4,4]} }; },
+  data:[0] }); });
+if(D.tradingPoints && D.tradingPoints.length){ kOpt.series.push({ name:'买卖点', type:'scatter', xAxisIndex:0, yAxisIndex:0, symbolSize:18,
+  data:D.tradingPoints.map(function(tp){ var buy=(tp.type||'').indexOf('buy')>=0; return { value:[D.dates[tp.index],tp.price],
+    symbol:'arrow', symbolRotate:buy?0:180, itemStyle:{color:buy?'#ff5b6e':'#2ee6a6',borderColor:'#fff',borderWidth:2},
+    label:{show:true,position:buy?'bottom':'top',formatter:tp.label||tp.type,fontSize:12,fontWeight:'bold',color:buy?'#ff5b6e':'#2ee6a6'} }; }) }); }
+kc.setOption(kOpt);
+
+var radar = echarts.init(document.getElementById('radar'));
+radar.setOption({
+  tooltip:{},
+  radar:{ shape:'polygon', radius:'66%', center:['50%','54%'],
+    indicator:[{name:'缠论',max:100},{name:'K线',max:100},{name:'资金',max:100},{name:'量能',max:100}],
+    axisName:{color:'#9aa7c7',fontSize:12},
+    splitLine:{lineStyle:{color:'#2a3556'}}, splitArea:{areaStyle:{color:['rgba(91,169,255,.04)','rgba(91,169,255,.08)']}},
+    axisLine:{lineStyle:{color:'#2a3556'}} },
+  series:[{ type:'radar', data:[{ value:{{RADAR_VALS}},
+    name:'多维信号', symbolSize:5,
+    lineStyle:{color:'#5aa9ff',width:2}, itemStyle:{color:'#5aa9ff'},
+    areaStyle:{color:'rgba(91,169,255,.28)'} }] }]
+});
+var gauge = echarts.init(document.getElementById('gauge'));
+gauge.setOption({
+  series:[{ type:'gauge', min:-100, max:100, center:['50%','62%'], radius:'92%',
+    startAngle:200, endAngle:-20,
+    progress:{show:true, width:10, itemStyle:{color:'#5aa9ff'}},
+    axisLine:{lineStyle:{width:10, color:[[0.5,'#2ee6a6'],[0.5,'#ff5b6e']]}},
+    axisTick:{show:false}, splitLine:{length:10,lineStyle:{color:'#3a466e'}},
+    axisLabel:{color:'#6b779b',fontSize:9,distance:12},
+    pointer:{itemStyle:{color:'#ffcf5c'}},
+    anchor:{show:true,size:8,itemStyle:{color:'#ffcf5c'}},
+    detail:{valueAnimation:true, formatter:'{value}', color:'#e8edf7', fontSize:22, offsetCenter:[0,'38%']},
+    title:{show:true,offsetCenter:[0,'72%'],color:'#9aa7c7',fontSize:11},
+    data:[{value:{{GAUGE_VAL}}, name:'综合信号 (-100~+100)'}] }]
+});
+window.addEventListener('resize', function(){ radar.resize(); gauge.resize(); kc.resize(); });
+</script>
+</body>
+</html>

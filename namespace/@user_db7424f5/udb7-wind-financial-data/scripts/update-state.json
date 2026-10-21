@@ -1,0 +1,23 @@
+{
+  "date": "2026-06-23",
+  "scope": "global",
+  "lockFile": "/Users/mhc/.agents/.skill-lock.json",
+  "lockFound": true,
+  "command": "npx skills update wind-mcp-skill -y -g",
+  "method": "update",
+  "sourceType": "github",
+  "updatedAt": "2026-06-23T17:09:53.664Z",
+  "status": "success",
+  "finishedAt": "2026-06-23T17:09:53.663Z",
+  "exitCode": 0,
+  "usedFallback": false,
+  "fallbackReason": null,
+  "error": null,
+  "remoteHead": "a4eb92569a739fa2eb3a144944a801240e57792d",
+  "remoteChanged": true,
+  "lastAppliedRemoteHead": "a4eb92569a739fa2eb3a144944a801240e57792d",
+  "changed": true,
+  "beforeHash": "aed400825de26a4a0da70dec0737d6f4b054bd44139286e80af9498f843dd9ad",
+  "afterHash": "ced919ca8fe03ddae26b97047286675248c50d93acd6121c07cf999e09d1b106",
+  "output": "\u001b[38;5;145mUpdating wind-mcp-skill...\u001b[0m\n\n\r\u001b[38;5;102mChecking skills from source: Wind-Information-Co-Ltd/wind-skills\u001b[0m\u001b[K\n\r\u001b[K\u001b[38;5;145mFound 1 global update(s)\u001b[0m\n\n\u001b[38;5;145mUpdating wind-mcp-skill...\u001b[0m\n  \u001b[38;5;145m✓\u001b[0m Updated wind-mcp-skill\n\n\u001b[38;5;145m✓ Updated 1 skill(s)\u001b[0m\n\nnpm warn exec The following package was not found and will be installed: skills@1.5.12"
+}

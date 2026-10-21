@@ -1,0 +1,1 @@
+export function detectNeedsUserInput(){return{needsInput:!1,reason:null}}

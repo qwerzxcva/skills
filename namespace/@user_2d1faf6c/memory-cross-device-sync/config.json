@@ -1,0 +1,40 @@
+{
+  "drive_id": "",
+  "parent_id": "",
+  "cloud_folder_id": "",
+  "cloud_folder_name": "8.workbuddy.memory",
+  "scan_max_depth": 3,
+  "sync_mirror": "",
+  "auto_create": true,
+  "backup_keep_count": 10,
+  "backup_max_age_days": 90,
+  "conflict_strategy": "ask",
+  "kaopu_enabled": false,
+  "kaopu_command": "",
+  "items": [
+    {
+      "name": "MEMORY.md",
+      "rel": ".workbuddy/MEMORY.md",
+      "fmt": "md"
+    },
+    {
+      "name": "IDENTITY.md",
+      "rel": ".workbuddy/IDENTITY.md",
+      "fmt": "md"
+    },
+    {
+      "name": "USER.md",
+      "rel": ".workbuddy/USER.md",
+      "fmt": "md"
+    },
+    {
+      "name": "SOUL.md",
+      "rel": ".workbuddy/SOUL.md",
+      "fmt": "md"
+    }
+  ],
+  "dry_run": true,
+  "lexiang_space_resolution": "whoami",
+  "check_level": "INFO",
+  "_comment": "本文件为发布态默认：所有 ID 型字段一律留空，由每个用户首次激活时按 SKILL.md §16 动态解析并写入；私有的解析结果只落 ~/<skill>/state.json（不入发布包）。"
+}

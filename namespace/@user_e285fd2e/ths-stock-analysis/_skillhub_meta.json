@@ -1,0 +1,14 @@
+{
+  "slug": "ths-stock-analysis",
+  "name": "同花顺股票二次分析",
+  "version": "1.1.6",
+  "installedAt": 1789220190457,
+  "source": "skillhub",
+  "namespace": "user_e285fd2e",
+  "canonicalName": "@user_e285fd2e/ths-stock-analysis",
+  "iconSource": "https://cloudcache.tencent-cloud.com/qcloud/ui/static/other_external_resource/7920727c-4e7d-496a-9223-d9c6673e9e53.png",
+  "iconLocalPath": "C:\\Users\\10234\\.workbuddy\\skills\\ths-stock-analysis__skillhub\\_icon.png",
+  "iconDownloadedFrom": "https://cloudcache.tencent-cloud.com/qcloud/ui/static/other_external_resource/7920727c-4e7d-496a-9223-d9c6673e9e53.png",
+  "userModified": true,
+  "installedContentHash": "sha256:09af780c5ca9dabc1dd7afc9bddda2b9977e39f320213c8aa7801789bb5561eb"
+}

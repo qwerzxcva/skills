@@ -1,0 +1,12 @@
+{
+  "name": "stock-watcher-repo",
+  "description": "Stock Watcher Pro - 全天自动化股票盯盘助手技能集合",
+  "version": "1.0.0",
+  "skills": [
+    {
+      "name": "stock-watcher",
+      "path": ".",
+      "description": "全天自动化股票盯盘助手（Pro版）"
+    }
+  ]
+}

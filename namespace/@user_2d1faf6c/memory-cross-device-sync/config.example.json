@@ -1,0 +1,30 @@
+{
+  "_comment": "记忆同步助手 v2.0.11 默认后端=乐享知识库（lexiang 连接器）。本文件所有字段均给出 v2.0.11 默认；按需把空字符串换成你的实际值；不确定就保持空——脚本会自动探测或报错兜底。",
+  "_version": "2.0.11",
+  "drive_id": "",
+  "parent_id": "",
+  "cloud_folder_id": "",
+  "cloud_folder_name": "workbuddy.memory",
+  "scan_max_depth": 3,
+  "sync_mirror": "",
+  "auto_create": true,
+  "backup_keep_count": 10,
+  "backup_max_age_days": 90,
+  "conflict_strategy": "ask",
+  "kaopu_enabled": false,
+  "kaopu_command": "",
+
+  "_v2_0_11_new": {
+    "_doc": "v2.0.11 新增三个友好默认；不写也有合理行为（dry_run=true 安全 / lexiang_space_resolution=whoami 真实取空间 / check_level=INFO 正常模式）。",
+    "dry_run": true,
+    "lexiang_space_resolution": "whoami",
+    "check_level": "INFO"
+  },
+
+  "items": [
+    {"name": "MEMORY.md",   "rel": ".workbuddy/MEMORY.md",   "fmt": "md"},
+    {"name": "IDENTITY.md", "rel": ".workbuddy/IDENTITY.md", "fmt": "md"},
+    {"name": "USER.md",     "rel": ".workbuddy/USER.md",     "fmt": "md"},
+    {"name": "SOUL.md",     "rel": ".workbuddy/SOUL.md",     "fmt": "md"}
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "name": "stock_simulate",
+  "version": "1.0.4",
+  "description": "股票模拟仓管理技能。用于管理用户的股票模拟账户，支持设定资金、买入卖出股票、查看持仓盈亏等功能。",
+  "author": "stock_simulate",
+  "dependencies": [
+    "akshare>=1.10.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0"
+  ],
+  "main": "scripts/main.py",
+  "categories": [
+    "finance",
+    "stock",
+    "simulation"
+  ],
+  "tags": [
+    "股票",
+    "模拟交易",
+    "模拟舱",
+    "模拟仓",
+    "股票模拟",
+    "持仓管理",
+    "盈亏计算",
+    "港股",
+    "A股"
+  ],
+  "skill_type": "tool",
+  "input_types": [],
+  "output_types": [],
+  "config_options": []
+}

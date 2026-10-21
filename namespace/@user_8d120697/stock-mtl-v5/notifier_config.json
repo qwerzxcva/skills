@@ -1,0 +1,1 @@
+﻿{"wechat":{"enabled":false,"webhook_url":"","mention_mobiles":[]},"dingtalk":{"enabled":false,"webhook_url":"","secret":"","at_mobiles":[]},"bark":{"enabled":false,"device_key":""},"serverchan":{"enabled":false,"send_key":""}}

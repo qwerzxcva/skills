@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "created": null,
+  "user_profile": {"name": null, "roles": [], "scenarios": []},
+  "domains": [
+    {
+      "key": "investment",
+      "label": "投资回测",
+      "description": "量化投资回测记忆：数据/参数 → 因子 → 因子测试 → 组合系统 四层体系。供做大量回测的人体系化记忆因子与系统。",
+      "keywords": ["因子", "回测", "IC", "IR", "sharpe", "最大回撤", "动量", "估值", "组合", "系统", "选股", "择时", "量化", "factor", "backtest"],
+      "heat_budget": 22,
+      "retention": null,
+      "_note": "heat_budget(22)：该域热度预算，控制 investment 域在 recall 中的提权与衰减权重；subdomains 为该域子域的单一事实源，mem_bridge 运行时从本文件派生（勿在代码里再硬编码一份）。",
+      "subdomains": [
+        {
+          "key": "data_catalog",
+          "label": "数据/参数注册表 (L0)",
+          "layer": "L0",
+          "keywords": ["字段", "参数", "数据源", "unit", "frequency", "mcp_code", "表", "列", "catalog"]
+        },
+        {
+          "key": "factor",
+          "label": "因子实体 (L1)",
+          "layer": "L1",
+          "keywords": ["因子定义", "因子构造", "scale", "中性化", "IC", "IR", "标度", "clip"]
+        },
+        {
+          "key": "factor_test",
+          "label": "因子测试迭代 (L2)",
+          "layer": "L2",
+          "keywords": ["测试轮次", "验证", "通过", "不通过", "样本外", "过拟合", "消融"]
+        },
+        {
+          "key": "system",
+          "label": "组合/系统 (L3)",
+          "layer": "L3",
+          "keywords": ["组合", "加权", "正交", "条件组合", "系统回测", "权重"]
+        },
+        {
+          "key": "data_integrity",
+          "label": "数据正确性",
+          "layer": "cross",
+          "keywords": ["前视泄漏", "值域", "pct公式", "对账", "单位", "复权"]
+        },
+        {
+          "key": "backtest_integrity",
+          "label": "回测正确性",
+          "layer": "cross",
+          "keywords": ["滑点", "手续费", "前视", "权重敏感性", "消融", "幸存者偏差"]
+        }
+      ]
+    }
+  ],
+  "fallback_domain": "general"
+}

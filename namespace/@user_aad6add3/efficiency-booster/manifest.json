@@ -1,0 +1,27 @@
+{
+  "id": "efficiency-booster",
+  "name": "efficiency-booster",
+  "displayName": "Efficiency Booster",
+  "version": "1.0.0",
+  "description": "A systematic thinking tool to help users improve efficiency. Uses a four-step closed-loop framework (Clarify -> Deconstruct -> Optimize -> Review) to enhance execution efficiency from a logical thinking perspective. Core principle: work smarter, not just harder. Output is a Word document format efficiency improvement plan and execution manual.",
+  "type": "skill",
+  "author": "your-name",
+  "tags": ["efficiency", "productivity", "time-management", "workflow", "optimization", "thinking-tools", "execution", "docx"],
+  "category": "productivity",
+  "entry": "SKILL.md",
+  "output": ["docx"],
+  "scripts": {
+    "generate": "scripts/generate_report.py",
+    "install": "scripts/install_dependencies.py"
+  },
+  "examples": [
+    "examples/writing_example.json"
+  ],
+  "config": {
+    "file": "config.json",
+    "schema": {
+      "defaultMode": "string",
+      "outputFormat": "string"
+    }
+  }
+}

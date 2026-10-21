@@ -1,0 +1,22 @@
+{
+  "_comment": "本机私有运行态缓存，由首次激活按 SKILL.md §16 动态解析后写入；发布包内为空模板。",
+  "_version": "2.1.0",
+  "space_id": "",
+  "root_entry_id": "",
+  "resolved_at": "",
+  "cloud": {
+    "master": {
+      "title": "工作习惯总纲",
+      "entry_id": "",
+      "space_id": ""
+    },
+    "backup": {
+      "title": "工作习惯总纲_备份",
+      "entry_id": "",
+      "space_id": ""
+    }
+  },
+  "folder_id": "",
+  "items": {},
+  "last_known": {}
+}

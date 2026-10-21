@@ -1,0 +1,107 @@
+{
+  "name": "stock-watcher",
+  "version": "1.0.0",
+  "description": "全天自动化股票盯盘助手（Pro版）。支持A股/港股/美股实时行情、8维度综合评分、热门股票扫描、谣言/异动预警、盯盘列表+提醒、7大智能预警规则、分时量能分析、K线图表生成(RSI/MACD/BB/VWAP/ATR)、行业概念板块、龙虎榜、财务数据、融资融券、资金流向、技术指标分析、16引擎多源舆情搜索、经验记忆系统、THS高级分析(分钟K线/大单盘口/竞价异动/问财NLP/板块指数/多股对比/资讯快讯)。",
+  "author": "Stock Watcher Team",
+  "license": "MIT",
+  "keywords": [
+    "股票", "A股", "港股", "美股", "盯盘", "技术分析", "K线",
+    "量化", "选股", "预警", "龙虎榜", "资金流向", "分时",
+    "MACD", "KDJ", "RSI", "布林带", "问财", "NLP选股"
+  ],
+  "category": "金融/投资",
+  "tools": [
+    {
+      "name": "fetch_stock",
+      "description": "获取股票行情、涨幅排行、K线数据、异动扫描、股票搜索",
+      "entrypoint": "scripts/fetch_stock.py"
+    },
+    {
+      "name": "kline_analyzer",
+      "description": "8维度K线技术分析+评分建议",
+      "entrypoint": "scripts/kline_analyzer.py"
+    },
+    {
+      "name": "hot_scanner",
+      "description": "全市场热门股票扫描",
+      "entrypoint": "scripts/hot_scanner.py"
+    },
+    {
+      "name": "rumor_scanner",
+      "description": "谣言/异动预警扫描",
+      "entrypoint": "scripts/rumor_scanner.py"
+    },
+    {
+      "name": "watchlist",
+      "description": "盯盘列表管理",
+      "entrypoint": "scripts/watchlist.py"
+    },
+    {
+      "name": "portfolio",
+      "description": "投资组合管理",
+      "entrypoint": "scripts/portfolio.py"
+    },
+    {
+      "name": "search",
+      "description": "通用股票搜索",
+      "entrypoint": "scripts/search.py"
+    },
+    {
+      "name": "stock_web_searcher",
+      "description": "多引擎舆情搜索+经验记忆",
+      "entrypoint": "scripts/stock_web_searcher.py"
+    },
+    {
+      "name": "minute_analyzer",
+      "description": "分时量能分析(主力动向)",
+      "entrypoint": "scripts/minute_analyzer.py"
+    },
+    {
+      "name": "chart_renderer",
+      "description": "K线图表渲染(RSI/MACD/BB/VWAP/ATR)",
+      "entrypoint": "scripts/chart_renderer.py"
+    },
+    {
+      "name": "deep_data",
+      "description": "板块/财务/龙虎榜/资金流向数据",
+      "entrypoint": "scripts/deep_data.py"
+    },
+    {
+      "name": "monitor",
+      "description": "7大智能预警规则+分级监控",
+      "entrypoint": "scripts/monitor.py"
+    },
+    {
+      "name": "multi_search",
+      "description": "16引擎多源搜索(百度/搜狗微信/Google/DuckDuckGo/WolframAlpha等)",
+      "entrypoint": "scripts/multi_search.py"
+    },
+    {
+      "name": "memory",
+      "description": "经验记忆系统(记住股票/交易经验/胜率统计/复盘)",
+      "entrypoint": "scripts/memory.py"
+    },
+    {
+      "name": "ths_advanced",
+      "description": "THS高级分析(分钟K线/大单盘口/竞价异动/问财NLP/板块指数/多股对比/资讯快讯)",
+      "entrypoint": "scripts/ths_advanced.py"
+    }
+  ],
+  "handler": {
+    "type": "python_package",
+    "entrypoint": "scripts/fetch_stock.py:main"
+  },
+  "requirements": {
+    "python": ">=3.8",
+    "packages": [
+      "requests",
+      "pandas",
+      "numpy",
+      "mplfinance",
+      "matplotlib",
+      "thsdk"
+    ],
+    "system": [],
+    "env": []
+  }
+}

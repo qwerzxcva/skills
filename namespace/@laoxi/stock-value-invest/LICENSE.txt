@@ -1,0 +1,30 @@
+MIT License
+
+Copyright (c) 2026 zxc
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+免责声明 / Disclaimer
+
+本 Skill（软件）仅作为投资思考框架与分析脚手架，所有输出不构成任何证券、
+基金、投资或交易建议。投资有风险，任何买卖决策须由使用者独立作出，盈亏自负。
+方法论源自公开资料（邱国鹭《投资中最简单的事》、帕特·多尔西《股市真规则》、
+巴菲特/芒格/段永平公开著作与访谈），未经任何机构或个人授权或背书。

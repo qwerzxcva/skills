@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{STOCK_NAME}}({{STOCK_CODE}}) 智能日报 | {{REPORT_DATE}}</title>
+<style>
+  :root {
+    --up-color: #e8393a;
+    --down-color: #1caa3c;
+    --bg: #f5f6f8;
+    --card-bg: #ffffff;
+    --text: #1a1a1a;
+    --text-secondary: #666;
+    --border: #e8e8e8;
+    --accent: #1677ff;
+    --gold: #f5a623;
+    --warning: #fa8c16;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 20px;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 20px;
+  }
+  .header .stock-name { font-size: 28px; font-weight: 700; }
+  .header .stock-code { font-size: 14px; opacity: 0.7; margin-left: 8px; }
+  .header .price-row { display: flex; align-items: baseline; gap: 16px; margin-top: 16px; }
+  .header .current-price { font-size: 42px; font-weight: 800; }
+  .header .change { font-size: 20px; font-weight: 600; display: flex; flex-direction: column; }
+  .header .change-percent { font-size: 16px; font-weight: 500; }
+  .up { color: var(--up-color); }
+  .down { color: var(--down-color); }
+  .header .meta { display: flex; gap: 24px; margin-top: 14px; font-size: 13px; opacity: 0.8; flex-wrap: wrap; }
+  .header .meta span { white-space: nowrap; }
+  .header .report-date { font-size: 12px; opacity: 0.5; margin-top: 10px; }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .card-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .icon { font-size: 20px; }
+
+  /* Quote summary grid */
+  .quote-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .quote-item {
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+  .quote-item .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .quote-item .value { font-size: 18px; font-weight: 700; }
+
+  /* Technical indicators */
+  .indicator-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .indicator-row:last-child { border-bottom: none; }
+  .indicator-name { font-size: 14px; font-weight: 600; }
+  .indicator-values { font-size: 14px; color: var(--text-secondary); }
+  .indicator-signal { font-size: 13px; padding: 3px 10px; border-radius: 12px; font-weight: 500; }
+  .signal-bullish { background: #fff1f0; color: var(--up-color); }
+  .signal-bearish { background: #f0fff0; color: var(--down-color); }
+  .signal-neutral { background: #f0f0f0; color: #888; }
+
+  /* Score */
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0;
+  }
+  .score-label { font-size: 13px; color: var(--text-secondary); min-width: 64px; }
+  .score-track {
+    flex: 1;
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .score-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+  .score-num { font-size: 18px; font-weight: 700; min-width: 28px; text-align: center; }
+  .sentiment-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: 700;
+    margin-top: 8px;
+  }
+  .sentiment-positive { background: #fff1f0; color: var(--up-color); }
+  .sentiment-neutral-bullish { background: #fff7e6; color: var(--warning); }
+  .sentiment-neutral { background: #f0f0f0; color: #888; }
+  .sentiment-neutral-bearish { background: #e6fffb; color: #08979c; }
+  .sentiment-cautious { background: #f0fff0; color: var(--down-color); }
+
+  /* key levels */
+  .levels-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .level-card {
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .level-card.resistance { background: #fff1f0; border: 1px solid #ffccc7; }
+  .level-card.support { background: #f0fff0; border: 1px solid #b7eb8f; }
+  .level-card h4 { font-size: 14px; margin-bottom: 10px; }
+  .level-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 13px;
+  }
+  .level-value { font-weight: 700; font-size: 16px; }
+
+  /* Signal list */
+  .signal-list { list-style: none; }
+  .signal-list li {
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .signal-list li.bullish { background: #fff1f0; border-left: 3px solid var(--up-color); }
+  .signal-list li.bearish { background: #f0fff0; border-left: 3px solid var(--down-color); }
+  .signal-list li.neutrals { background: #fafafa; border-left: 3px solid #ccc; }
+
+  /* News */
+  .news-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .news-item:last-child { border-bottom: none; }
+  .news-source { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+  /* Disclaimer */
+  .disclaimer {
+    text-align: center;
+    color: #aaa;
+    font-size: 12px;
+    padding: 20px;
+    margin-top: 10px;
+  }
+
+  /* Trend tag */
+  .trend-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 8px;
+  }
+  .trend-up { background: #fff1f0; color: var(--up-color); }
+  .trend-down { background: #f0fff0; color: var(--down-color); }
+  .trend-flat { background: #f0f0f0; color: #888; }
+
+  /* MA row */
+  .ma-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .ma-chip {
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #f0f5ff;
+    border: 1px solid #d6e4ff;
+  }
+  .ma-chip.above { background: #fff1f0; border-color: #ffccc7; color: var(--up-color); }
+  .ma-chip.below { background: #f0fff0; border-color: #b7eb8f; color: var(--down-color); }
+
+  @media (max-width: 600px) {
+    body { padding: 10px; }
+    .header { padding: 20px; }
+    .header .current-price { font-size: 32px; }
+    .quote-grid { grid-template-columns: repeat(2, 1fr); }
+    .levels-grid { grid-template-columns: 1fr; }
+    .ma-row { gap: 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ========== HEADER ========== -->
+<div class="header">
+  <div>
+    <span class="stock-name">{{STOCK_NAME}}</span>
+    <span class="stock-code">{{STOCK_CODE}}</span>
+  </div>
+  <div class="price-row">
+    <span class="current-price {{PRICE_COLOR}}">{{CURRENT_PRICE}}</span>
+    <div class="change {{PRICE_COLOR}}">
+      <span>{{CHANGE_AMOUNT}}</span>
+      <span class="change-percent">{{CHANGE_PERCENT}}</span>
+    </div>
+  </div>
+  <div class="meta">
+    <span>今开 {{OPEN}}</span>
+    <span>最高 {{HIGH}}</span>
+    <span>最低 {{LOW}}</span>
+    <span>昨收 {{PRE_CLOSE}}</span>
+    <span>振幅 {{AMPLITUDE}}</span>
+    <span>换手 {{TURNOVER_RATE}}</span>
+  </div>
+  <div class="meta" style="margin-top: 6px;">
+    <span>成交量 {{VOLUME}}</span>
+    <span>成交额 {{AMOUNT}}</span>
+    <span>总市值 {{MARKET_CAP}}</span>
+    <span>PE {{PE}}</span>
+  </div>
+  <div class="report-date">报告生成时间：{{TIMESTAMP}} · 数据可能有15分钟延迟</div>
+</div>
+
+<!-- ========== 行情概览 ========== -->
+<div class="card">
+  <div class="card-title"><span class="icon">📊</span> 行情概览</div>
+  <div class="quote-grid">
+    <div class="quote-item">
+      <div class="label">开盘价</div>
+      <div class="value">{{OPEN}}</div>
+    </div>
+    <div class="quote-item">
+      <div class="label">最高价</div>
+      <div class="value" style="color: var(--up-color);">{{HIGH}}</div>
+    </div>
+    <div class="quote-item">
+      <div class="label">最低价</div>
+      <div class="value" style="color: var(--down-color);">{{LOW}}</div>
+    </div>
+    <div class="quote-item">
+      <div class="label">成交量</div>
+      <div class="value" style="font-size: 14px;">{{VOLUME_SHORT}}</div>
+    </div>
+    <div class="quote-item">
+      <div class="label">成交额</div>
+      <div class="value" style="font-size: 14px;">{{AMOUNT_SHORT}}</div>
+    </div>
+    <div class="quote-item">
+      <div class="label">换手率</div>
+      <div class="value">{{TURNOVER_RATE}}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 均线系统 ========== -->
+<div class="card">
+  <div class="card-title"><span class="icon">📈</span> 均线系统 {{TREND_TAG}}</div>
+  <div class="ma-row">
+    <div class="ma-chip {{MA5_CLASS}}">MA5 {{MA5}}</div>
+    <div class="ma-chip {{MA10_CLASS}}">MA10 {{MA10}}</div>
+    <div class="ma-chip {{MA20_CLASS}}">MA20 {{MA20}}</div>
+    <div class="ma-chip {{MA60_CLASS}}">MA60 {{MA60}}</div>
+  </div>
+  <div style="margin-top: 12px; font-size: 14px; color: var(--text-secondary);">
+    均线排列：{{MA_ARRANGEMENT}} · {{MA_CROSS_SIGNAL}}
+  </div>
+</div>
+
+<!-- ========== 技术指标 ========== -->
+<div class="card">
+  <div class="card-title"><span class="icon">🔬</span> 技术指标</div>
+  <div class="indicator-row">
+    <span class="indicator-name">MACD</span>
+    <span class="indicator-values">DIF {{MACD_DIF}} · DEA {{MACD_DEA}} · 柱 {{MACD_BAR}}</span>
+    <span class="indicator-signal {{MACD_SIGNAL_CLASS}}">{{MACD_SIGNAL}}</span>
+  </div>
+  <div class="indicator-row">
+    <span class="indicator-name">KDJ</span>
+    <span class="indicator-values">K {{KDJ_K}} · D {{KDJ_D}} · J {{KDJ_J}}</span>
+    <span class="indicator-signal {{KDJ_SIGNAL_CLASS}}">{{KDJ_SIGNAL}}</span>
+  </div>
+  <div class="indicator-row">
+    <span class="indicator-name">RSI(6)</span>
+    <span class="indicator-values">{{RSI6}}</span>
+    <span class="indicator-signal {{RSI6_CLASS}}">{{RSI6_STATUS}}</span>
+  </div>
+  <div class="indicator-row">
+    <span class="indicator-name">RSI(14)</span>
+    <span class="indicator-values">{{RSI14}}</span>
+    <span class="indicator-signal {{RSI14_CLASS}}">{{RSI14_STATUS}}</span>
+  </div>
+</div>
+
+<!-- ========== 关键价位 ========== -->
+<div class="card">
+  <div class="card-title"><span class="icon">🎯</span> 关键价位</div>
+  <div class="levels-grid">
+    <div class="level-card resistance">
+      <h4>🔴 压力位</h4>
+      <div class="level-item"><span>压力1（短期）</span><span class="level-value" style="color: var(--up-color);">{{RESISTANCE_1}}</span></div>
+      <div class="level-item" style="font-size: 12px; color: #999;">{{RESISTANCE_1_SRC}}</div>
+      <div class="level-item"><span>压力2（中期）</span><span class="level-value" style="color: var(--up-color);">{{RESISTANCE_2}}</span></div>
+      <div class="level-item" style="font-size: 12px; color: #999;">{{RESISTANCE_2_SRC}}</div>
+    </div>
+    <div class="level-card support">
+      <h4>🟢 支撑位</h4>
+      <div class="level-item"><span>支撑1（短期）</span><span class="level-value" style="color: var(--down-color);">{{SUPPORT_1}}</span></div>
+      <div class="level-item" style="font-size: 12px; color: #999;">{{SUPPORT_1_SRC}}</div>
+      <div class="level-item"><span>支撑2（中期）</span><span class="level-value" style="color: var(--down-color);">{{SUPPORT_2}}</span></div>
+      <div class="level-item" style="font-size: 12px; color: #999;">{{SUPPORT_2_SRC}}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 资金流向 ========== -->
+<div class="card">
+  <div class="card-title"><span class="icon">💰</span> 资金流向</div>
+  <div class="indicator-row">
+    <span class="indicator-name">主力净流入</span>
+    <span class="indicator-values {{MAIN_FLOW_CLASS}}" style="font-weight: 700; font-size: 16px;">{{MAIN_NET_FLOW}}</span>
+  </div>
+  <div class="indicator-row">
+    <span class="indicator-name">超大单</span>
+    <span class="indicator-values">{{SUPER_LARGE_FLOW}}</span>
+  </div>
+  <div class="indicator-row">
+    <span class="indicator-name">大单</span>
+    <span class="indicator-values">{{LARGE_FLOW}}</span>
+  </div>
+  <div style="margin-top: 10px; font-size: 13px; color: var(--text-secondary);">
+    近5日资金趋势：{{FUND_TREND}}
+  </div>
+</div>
+
+<!-- ========== 技术信号汇总 ========== -->
+<div class="card">
+  <div class="card-title"><span class="icon">📡</span> 信号汇总</div>
+  <ul class="signal-list">
+    {{SIGNAL_ITEMS}}
+  </ul>
+</div>
+
+<!-- ========== 消息面 ========== -->
+<div class="card">
+  <div class="card-title"><span class="icon">📰</span> 消息面</div>
+  {{NEWS_ITEMS}}
+  {{#if NO_NEWS}}
+  <div style="color: #aaa; text-align: center; padding: 12px;">近期无重大公告和新闻</div>
+  {{/if}}
+</div>
+
+<!-- ========== 综合评分 ========== -->
+<div class="card">
+  <div class="card-title"><span class="icon">⭐</span> 综合评分</div>
+  <div class="score-bar">
+    <span class="score-label">技术面</span>
+    <div class="score-track"><div class="score-fill" style="width: {{TECH_SCORE_PCT}}%; background: {{TECH_SCORE_COLOR}};"></div></div>
+    <span class="score-num">{{TECH_SCORE}}/5</span>
+  </div>
+  <div class="score-bar">
+    <span class="score-label">资金面</span>
+    <div class="score-track"><div class="score-fill" style="width: {{FUND_SCORE_PCT}}%; background: {{FUND_SCORE_COLOR}};"></div></div>
+    <span class="score-num">{{FUND_SCORE}}/5</span>
+  </div>
+  <div class="score-bar">
+    <span class="score-label">消息面</span>
+    <div class="score-track"><div class="score-fill" style="width: {{NEWS_SCORE_PCT}}%; background: {{NEWS_SCORE_COLOR}};"></div></div>
+    <span class="score-num">{{NEWS_SCORE}}/5</span>
+  </div>
+  <div style="text-align: center; margin-top: 8px;">
+    <span class="sentiment-badge {{SENTIMENT_CLASS}}">{{SENTIMENT_TEXT}}</span>
+  </div>
+</div>
+
+<!-- ========== 免责声明 ========== -->
+<div class="disclaimer">
+  ⚠️ 本报告由 AI 自动生成，仅供学习参考，不构成任何投资建议。<br>
+  数据来源：腾讯自选股、NeoData 金融搜索 · 数据可能存在15分钟延迟<br>
+  投资有风险，入市需谨慎。
+</div>
+
+</div>
+</body>
+</html>

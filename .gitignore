@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+node_modules/
+.locks
+.hub/
+.usage.json*
+.skills_store_lock.json
+.curator_state
+.bundled_manifest
+.curator_ledger.jsonl
